@@ -45,6 +45,10 @@
             border-radius: 32px;
             border: 1px solid rgba(255, 255, 255, 0.15);
             transition: all 0.3s ease;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+        .module-card + .module-card {
+            margin-top: 40px;
         }
         .module-card:hover {
             transform: translateY(-5px);
@@ -774,6 +778,7 @@
         function loadDiaries() {
             const diaryList = document.getElementById('diaryList');
             let diaries = JSON.parse(localStorage.getItem('diaries') || '[]');
+            let finances = JSON.parse(localStorage.getItem('my_data') || '[]');
             
             if (diaries.length === 0) {
                 diaryList.innerHTML = '<div class="empty-state">没有找到日记记录</div>';
@@ -783,17 +788,40 @@
             let html = '';
             diaries.forEach(diary => {
                 const date = new Date(diary.date);
+                const year = date.getFullYear();
+                const month = date.getMonth() + 1;
+                const day = date.getDate();
                 const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
                 const weekday = weekdays[date.getDay()];
-                const formattedDate = date.toLocaleDateString('zh-CN') + ' ' + weekday + ' ' + date.toLocaleTimeString('zh-CN');
+                const formattedDate = `${year}年${month}月${day}日 ${weekday}`;
+                
+                // 计算当天的收支
+                const diaryDate = date.toDateString();
+                let dayIncome = 0;
+                let dayExpense = 0;
+                
+                finances.forEach(item => {
+                    const itemDate = new Date(item.date).toDateString();
+                    if (itemDate === diaryDate) {
+                        if (item.type === 'income') {
+                            dayIncome += item.amount;
+                        } else {
+                            dayExpense += item.amount;
+                        }
+                    }
+                });
+                
+                let financeInfo = '';
+                if (dayIncome > 0 || dayExpense > 0) {
+                    financeInfo = `<div style="font-size: 12px; color: rgba(255, 255, 255, 0.7); margin-top: 5px;">当日支出: ¥${dayExpense.toFixed(2)} | 收入: ¥${dayIncome.toFixed(2)}</div>`;
+                }
                 
                 html += `
                     <div class="record-item">
                         <button class="delete-btn" onclick="deleteDiary(${diary.id})">&times;</button>
+                        <div style="font-size: 16px; font-weight: 600; color: white; margin-bottom: 10px;">${formattedDate}</div>
+                        ${financeInfo}
                         <div class="record-content">${diary.content}</div>
-                        <div class="record-meta">
-                            <span>${formattedDate}</span>
-                        </div>
                     </div>
                 `;
             });
@@ -1134,6 +1162,24 @@
             
             const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
             let html = '';
+            
+            // 日期峰值细节
+            if (maxIncomeDay || maxExpenseDay) {
+                let peakDetails = "这个月你";
+                if (maxExpenseDay) {
+                    const expenseDay = maxExpenseDay.date.getDate();
+                    peakDetails += `最阔绰的是 ${expenseDay}号`;
+                }
+                if (maxExpenseDay && maxIncomeDay) {
+                    peakDetails += "，";
+                }
+                if (maxIncomeDay) {
+                    const incomeDay = maxIncomeDay.date.getDate();
+                    peakDetails += `最努力赚钱的是 ${incomeDay}号`;
+                }
+                peakDetails += "";
+                html += `<div style="background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 12px; margin-bottom: 20px; color: white; font-size: 16px;">${peakDetails}</div>`;
+            }
             
             // 收支最值详情
             html += `<h5 style="color: rgba(255, 255, 255, 0.85); margin-bottom: 15px; font-size: 16px;">收支最值详情</h5>`;
