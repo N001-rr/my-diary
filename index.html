@@ -829,8 +829,7 @@
             currentExpenseCategory = '';
             
             // 重新加载数据并更新统计
-            loadFinances();
-            updateStats();
+            renderAll();
             
             alert('支出记录成功！');
         }
@@ -876,8 +875,7 @@
             currentIncomeCategory = '';
             
             // 重新加载数据并更新统计
-            loadFinances();
-            updateStats();
+            renderAll();
             
             alert('收入记录成功！');
         }
@@ -939,6 +937,13 @@
             animateValue('totalIncome', totalIncome);
             animateValue('totalExpense', totalExpense);
             animateValue('netProfit', netProfit);
+        }
+
+        // 刷新界面上所有的数字和列表
+        function renderAll() {
+            loadFinances();
+            updateStats();
+            loadDiaries();
         }
 
         // 数字滚动动画
