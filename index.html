@@ -587,11 +587,17 @@
                         <div class="stat-value balance-value" id="netProfit">¥0.00</div>
                     </div>
                 </div>
-                <div class="time-filter" style="display: flex; gap: 10px; margin-bottom: 30px; justify-content: center;">
+                <div class="time-filter" style="display: flex; gap: 10px; margin-bottom: 30px; justify-content: center; flex-wrap: wrap;">
                     <button class="time-btn active" onclick="setTimeFilter('today')">今日</button>
                     <button class="time-btn" onclick="setTimeFilter('week')">本周</button>
                     <button class="time-btn" onclick="setTimeFilter('month')">本月</button>
                     <button class="time-btn" onclick="setTimeFilter('year')">全年</button>
+                    <div class="custom-date-filter" style="display: flex; gap: 10px; align-items: center; margin-top: 10px; flex-basis: 100%; justify-content: center;">
+                        <input type="date" id="startDate" style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 25px; background: rgba(255, 255, 255, 0.1); color: white; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);">
+                        <span style="color: white;">至</span>
+                        <input type="date" id="endDate" style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 25px; background: rgba(255, 255, 255, 0.1); color: white; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);">
+                        <button class="btn" onclick="setCustomDateFilter()" style="margin-top: 0;">应用</button>
+                    </div>
                 </div>
                 <div class="date-ranking" style="margin-top: 30px; margin-bottom: 30px;">
                     <h4 style="color: rgba(255, 255, 255, 0.85); margin-bottom: 20px; font-size: 18px;">日期收支榜单</h4>
@@ -717,6 +723,7 @@
         let selectedType = 'expense';
         let selectedCategory = '';
         let currentTimeFilter = 'today';
+        let customDateRange = null;
 
         // 初始化
         document.addEventListener('DOMContentLoaded', function() {
@@ -824,11 +831,43 @@
         // 设置时间筛选
         function setTimeFilter(filter) {
             currentTimeFilter = filter;
+            customDateRange = null;
             
             // 切换时间按钮状态
             const timeButtons = document.querySelectorAll('.time-btn');
             timeButtons.forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
+            
+            // 更新统计数据
+            calculate();
+            updateDateRanking();
+        }
+
+        // 设置自定义日期筛选
+        function setCustomDateFilter() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            
+            if (!startDate || !endDate) {
+                alert('请选择开始和结束日期！');
+                return;
+            }
+            
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            end.setHours(23, 59, 59, 999); // 设置结束日期为当天的最后一刻
+            
+            if (start > end) {
+                alert('开始日期不能晚于结束日期！');
+                return;
+            }
+            
+            currentTimeFilter = 'custom';
+            customDateRange = { start, end };
+            
+            // 重置时间按钮状态
+            const timeButtons = document.querySelectorAll('.time-btn');
+            timeButtons.forEach(btn => btn.classList.remove('active'));
             
             // 更新统计数据
             calculate();
@@ -966,10 +1005,13 @@
                 
                 const dayNet = dayIncome - dayExpense;
                 
-                // 添加日总结线
+                // 添加日期标题栏
                 html += `
-                    <div class="day-summary" style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding: 15px 20px; border-radius: 12px; margin-bottom: 15px; border: 1px solid rgba(255, 255, 255, 0.2); font-weight: 600; color: white;">
-                        ${formattedDate} | 收：+¥${dayIncome.toFixed(2)} | 支：-¥${dayExpense.toFixed(2)} | 净赚：${dayNet >= 0 ? '+' : ''}¥${dayNet.toFixed(2)}
+                    <div class="day-summary" style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding: 20px; border-radius: 16px; margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.3); font-weight: 700; color: white; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="font-size: 18px;">${formattedDate}</div>
+                            <div style="font-size: 16px;">今日收：+¥${dayIncome.toFixed(2)} | 支：-¥${dayExpense.toFixed(2)}</div>
+                        </div>
                     </div>
                 `;
                 
@@ -1061,154 +1103,141 @@
                 return;
             }
             
+            // 计算每天的收支
+            const dailyTotals = {};
+            filteredData.forEach(item => {
+                const date = new Date(item.date);
+                const dateKey = date.toDateString();
+                if (!dailyTotals[dateKey]) {
+                    dailyTotals[dateKey] = { date: date, income: 0, expense: 0, items: [] };
+                }
+                if (item.type === 'income') {
+                    dailyTotals[dateKey].income += item.amount;
+                } else {
+                    dailyTotals[dateKey].expense += item.amount;
+                }
+                dailyTotals[dateKey].items.push(item);
+            });
+            
+            // 找出最高收入日和最高支出日
+            let maxIncomeDay = null;
+            let maxExpenseDay = null;
+            
+            Object.values(dailyTotals).forEach(day => {
+                if (!maxIncomeDay || day.income > maxIncomeDay.income) {
+                    maxIncomeDay = day;
+                }
+                if (!maxExpenseDay || day.expense > maxExpenseDay.expense) {
+                    maxExpenseDay = day;
+                }
+            });
+            
+            const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
             let html = '';
             
-            if (currentTimeFilter === 'week') {
-                // 本周最高收入日和最高支出日
-                const dailyTotals = {};
-                
-                filteredData.forEach(item => {
-                    const date = new Date(item.date);
-                    const dateKey = date.toDateString();
-                    if (!dailyTotals[dateKey]) {
-                        dailyTotals[dateKey] = { date: date, income: 0, expense: 0 };
-                    }
-                    if (item.type === 'income') {
-                        dailyTotals[dateKey].income += item.amount;
-                    } else {
-                        dailyTotals[dateKey].expense += item.amount;
-                    }
-                });
-                
-                // 找出最高收入日和最高支出日
-                let maxIncomeDay = null;
-                let maxExpenseDay = null;
-                
-                Object.values(dailyTotals).forEach(day => {
-                    if (!maxIncomeDay || day.income > maxIncomeDay.income) {
-                        maxIncomeDay = day;
-                    }
-                    if (!maxExpenseDay || day.expense > maxExpenseDay.expense) {
-                        maxExpenseDay = day;
-                    }
-                });
-                
-                const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
-                
-                if (maxIncomeDay) {
-                    const weekday = weekdays[maxIncomeDay.date.getDay()];
-                    const formattedDate = maxIncomeDay.date.toLocaleDateString('zh-CN') + ' ' + weekday;
-                    html += `
-                        <div class="ranking-item">
-                            <div class="ranking-category">
-                                <span>💰 本周最高收入日</span>
-                            </div>
-                            <div class="ranking-amount income-amount">${formattedDate} | ¥${maxIncomeDay.income.toFixed(2)}</div>
-                        </div>
-                    `;
-                }
-                
-                if (maxExpenseDay) {
-                    const weekday = weekdays[maxExpenseDay.date.getDay()];
-                    const formattedDate = maxExpenseDay.date.toLocaleDateString('zh-CN') + ' ' + weekday;
-                    html += `
-                        <div class="ranking-item">
-                            <div class="ranking-category">
-                                <span>💸 本周最高支出日</span>
-                            </div>
-                            <div class="ranking-amount expense-amount">${formattedDate} | ¥${maxExpenseDay.expense.toFixed(2)}</div>
-                        </div>
-                    `;
-                }
-            } else if (currentTimeFilter === 'year') {
-                // 今年最高收入月和最高支出月
-                const monthlyTotals = {};
-                
-                filteredData.forEach(item => {
-                    const date = new Date(item.date);
-                    const monthKey = `${date.getFullYear()}-${date.getMonth() + 1}`;
-                    if (!monthlyTotals[monthKey]) {
-                        monthlyTotals[monthKey] = { month: date.getMonth() + 1, income: 0, expense: 0 };
-                    }
-                    if (item.type === 'income') {
-                        monthlyTotals[monthKey].income += item.amount;
-                    } else {
-                        monthlyTotals[monthKey].expense += item.amount;
-                    }
-                });
-                
-                // 找出最高收入月和最高支出月
-                let maxIncomeMonth = null;
-                let maxExpenseMonth = null;
-                
-                Object.values(monthlyTotals).forEach(month => {
-                    if (!maxIncomeMonth || month.income > maxIncomeMonth.income) {
-                        maxIncomeMonth = month;
-                    }
-                    if (!maxExpenseMonth || month.expense > maxExpenseMonth.expense) {
-                        maxExpenseMonth = month;
-                    }
-                });
-                
-                if (maxIncomeMonth) {
-                    html += `
-                        <div class="ranking-item">
-                            <div class="ranking-category">
-                                <span>💰 今年最高收入月</span>
-                            </div>
-                            <div class="ranking-amount income-amount">${maxIncomeMonth.month}月 | ¥${maxIncomeMonth.income.toFixed(2)}</div>
-                        </div>
-                    `;
-                }
-                
-                if (maxExpenseMonth) {
-                    html += `
-                        <div class="ranking-item">
-                            <div class="ranking-category">
-                                <span>💸 今年最高支出月</span>
-                            </div>
-                            <div class="ranking-amount expense-amount">${maxExpenseMonth.month}月 | ¥${maxExpenseMonth.expense.toFixed(2)}</div>
-                        </div>
-                    `;
-                }
-            } else {
-                // 其他时间范围显示总体统计
-                let totalIncome = 0;
-                let totalExpense = 0;
-                
-                filteredData.forEach(item => {
-                    if (item.type === 'income') {
-                        totalIncome += item.amount;
-                    } else {
-                        totalExpense += item.amount;
-                    }
-                });
-                
-                const netProfit = totalIncome - totalExpense;
-                
+            // 收支最值详情
+            html += `<h5 style="color: rgba(255, 255, 255, 0.85); margin-bottom: 15px; font-size: 16px;">收支最值详情</h5>`;
+            
+            if (maxIncomeDay) {
+                const weekday = weekdays[maxIncomeDay.date.getDay()];
+                const formattedDate = maxIncomeDay.date.toLocaleDateString('zh-CN') + ' ' + weekday;
+                const dateKey = maxIncomeDay.date.toDateString();
                 html += `
-                    <div class="ranking-item">
+                    <div class="ranking-item" style="cursor: pointer; transition: all 0.3s ease;" onclick="filterByDate('${dateKey}')">
                         <div class="ranking-category">
-                            <span>💰 总收入</span>
+                            <span>🏆 进账最多的一天</span>
                         </div>
-                        <div class="ranking-amount income-amount">¥${totalIncome.toFixed(2)}</div>
+                        <div class="ranking-amount income-amount">${formattedDate} | ¥${maxIncomeDay.income.toFixed(2)}</div>
                     </div>
-                    <div class="ranking-item">
+                `;
+            }
+            
+            if (maxExpenseDay) {
+                const weekday = weekdays[maxExpenseDay.date.getDay()];
+                const formattedDate = maxExpenseDay.date.toLocaleDateString('zh-CN') + ' ' + weekday;
+                const dateKey = maxExpenseDay.date.toDateString();
+                html += `
+                    <div class="ranking-item" style="cursor: pointer; transition: all 0.3s ease;" onclick="filterByDate('${dateKey}')">
                         <div class="ranking-category">
-                            <span>💸 总支出</span>
+                            <span>💸 支出最高的一天</span>
                         </div>
-                        <div class="ranking-amount expense-amount">¥${totalExpense.toFixed(2)}</div>
-                    </div>
-                    <div class="ranking-item">
-                        <div class="ranking-category">
-                            <span>📊 结余</span>
-                        </div>
-                        <div class="ranking-amount balance-value">¥${netProfit.toFixed(2)}</div>
+                        <div class="ranking-amount expense-amount">${formattedDate} | ¥${maxExpenseDay.expense.toFixed(2)}</div>
                     </div>
                 `;
             }
             
             rankingList.innerHTML = html;
+        }
+
+        // 按日期筛选历史记录
+        function filterByDate(dateKey) {
+            const financeList = document.getElementById('financeList');
+            let myData = JSON.parse(localStorage.getItem('my_data') || '[]');
+            
+            // 按时间倒序排序
+            myData.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            // 筛选指定日期的记录
+            const filteredData = myData.filter(item => {
+                const itemDate = new Date(item.date);
+                return itemDate.toDateString() === dateKey;
+            });
+            
+            if (filteredData.length === 0) {
+                financeList.innerHTML = '<div class="empty-state">没有找到该日期的记录</div>';
+                return;
+            }
+            
+            // 计算当天的收支
+            let dayIncome = 0;
+            let dayExpense = 0;
+            filteredData.forEach(item => {
+                if (item.type === 'income') {
+                    dayIncome += item.amount;
+                } else {
+                    dayExpense += item.amount;
+                }
+            });
+            
+            const dayNet = dayIncome - dayExpense;
+            const date = new Date(dateKey);
+            const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+            const weekday = weekdays[date.getDay()];
+            const formattedDate = date.toLocaleDateString('zh-CN') + ' ' + weekday;
+            
+            let html = '';
+            
+            // 添加日期标题栏
+            html += `
+                <div class="day-summary" style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding: 20px; border-radius: 16px; margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.3); font-weight: 700; color: white; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-size: 18px;">${formattedDate}</div>
+                        <div style="font-size: 16px;">今日收：+¥${dayIncome.toFixed(2)} | 支：-¥${dayExpense.toFixed(2)}</div>
+                    </div>
+                </div>
+            `;
+            
+            // 添加当天的记录
+            filteredData.forEach(item => {
+                const isIncome = item.type === 'income';
+                
+                html += `
+                    <div class="expense-item">
+                        <div class="expense-category">
+                            <div class="category-icon">${item.icon}</div>
+                            <div class="expense-details">
+                                <div class="expense-category-name">${item.category}</div>
+                                <div class="expense-note">${item.note || '无备注'}</div>
+                            </div>
+                        </div>
+                        <div class="expense-amount ${isIncome ? 'income-amount' : 'expense-amount'}">
+                            ${isIncome ? '+' : '-' }¥${item.amount.toFixed(2)}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            financeList.innerHTML = html;
         }
 
         // 求和逻辑
@@ -1241,6 +1270,14 @@
 
         // 根据时间筛选数据
         function filterDataByTime(data, filter) {
+            if (filter === 'custom' && customDateRange) {
+                const { start, end } = customDateRange;
+                return data.filter(item => {
+                    const itemDate = new Date(item.date);
+                    return itemDate >= start && itemDate <= end;
+                });
+            }
+            
             const now = new Date();
             let startDate;
             
