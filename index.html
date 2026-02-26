@@ -593,6 +593,10 @@
                     <button class="time-btn" onclick="setTimeFilter('month')">本月</button>
                     <button class="time-btn" onclick="setTimeFilter('year')">全年</button>
                 </div>
+                <div class="date-ranking" style="margin-top: 30px; margin-bottom: 30px;">
+                    <h4 style="color: rgba(255, 255, 255, 0.85); margin-bottom: 20px; font-size: 18px;">日期收支榜单</h4>
+                    <div id="dateRanking" class="ranking-list"></div>
+                </div>
                 <div class="expense-ranking" style="margin-top: 30px;">
                     <h4 style="color: rgba(255, 255, 255, 0.85); margin-bottom: 20px; font-size: 18px;">本月支出排行榜</h4>
                     <div id="expenseRanking" class="ranking-list"></div>
@@ -721,6 +725,7 @@
             updateMood(5);
             calculate();
             updateExpenseRanking();
+            updateDateRanking();
         });
 
         // 心情氛围
@@ -827,6 +832,7 @@
             
             // 更新统计数据
             calculate();
+            updateDateRanking();
         }
 
         // 选择分类
@@ -908,6 +914,7 @@
             loadFinances();
             calculate();
             updateExpenseRanking();
+            updateDateRanking();
             
             alert('记录保存成功！');
         }
@@ -925,28 +932,66 @@
                 return;
             }
             
-            let html = '';
+            // 按日期分组
+            const dailyGroups = {};
             myData.forEach(item => {
                 const date = new Date(item.date);
-                const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+                const dateKey = date.toDateString();
+                if (!dailyGroups[dateKey]) {
+                    dailyGroups[dateKey] = { date: date, items: [] };
+                }
+                dailyGroups[dateKey].items.push(item);
+            });
+            
+            let html = '';
+            const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+            
+            // 遍历日期分组
+            Object.values(dailyGroups).forEach(dayGroup => {
+                const date = dayGroup.date;
                 const weekday = weekdays[date.getDay()];
                 const formattedDate = date.toLocaleDateString('zh-CN') + ' ' + weekday;
-                const isIncome = item.type === 'income';
                 
+                // 计算当天的收支
+                let dayIncome = 0;
+                let dayExpense = 0;
+                
+                dayGroup.items.forEach(item => {
+                    if (item.type === 'income') {
+                        dayIncome += item.amount;
+                    } else {
+                        dayExpense += item.amount;
+                    }
+                });
+                
+                const dayNet = dayIncome - dayExpense;
+                
+                // 添加日总结线
                 html += `
-                    <div class="expense-item">
-                        <div class="expense-category">
-                            <div class="category-icon">${item.icon}</div>
-                            <div class="expense-details">
-                                <div class="expense-category-name">${item.category}</div>
-                                <div class="expense-note">${item.note || '无备注'} · ${formattedDate}</div>
-                            </div>
-                        </div>
-                        <div class="expense-amount ${isIncome ? 'income-amount' : 'expense-amount'}">
-                            ${isIncome ? '+' : '-' }¥${item.amount.toFixed(2)}
-                        </div>
+                    <div class="day-summary" style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding: 15px 20px; border-radius: 12px; margin-bottom: 15px; border: 1px solid rgba(255, 255, 255, 0.2); font-weight: 600; color: white;">
+                        ${formattedDate} | 收：+¥${dayIncome.toFixed(2)} | 支：-¥${dayExpense.toFixed(2)} | 净赚：${dayNet >= 0 ? '+' : ''}¥${dayNet.toFixed(2)}
                     </div>
                 `;
+                
+                // 添加当天的记录
+                dayGroup.items.forEach(item => {
+                    const isIncome = item.type === 'income';
+                    
+                    html += `
+                        <div class="expense-item">
+                            <div class="expense-category">
+                                <div class="category-icon">${item.icon}</div>
+                                <div class="expense-details">
+                                    <div class="expense-category-name">${item.category}</div>
+                                    <div class="expense-note">${item.note || '无备注'}</div>
+                                </div>
+                            </div>
+                            <div class="expense-amount ${isIncome ? 'income-amount' : 'expense-amount'}">
+                                ${isIncome ? '+' : '-' }¥${item.amount.toFixed(2)}
+                            </div>
+                        </div>
+                    `;
+                });
             });
             
             financeList.innerHTML = html;
@@ -999,6 +1044,169 @@
                     </div>
                 `;
             });
+            
+            rankingList.innerHTML = html;
+        }
+
+        // 更新日期收支榜单
+        function updateDateRanking() {
+            const rankingList = document.getElementById('dateRanking');
+            let myData = JSON.parse(localStorage.getItem('my_data') || '[]');
+            
+            // 根据时间筛选条件过滤数据
+            const filteredData = filterDataByTime(myData, currentTimeFilter);
+            
+            if (filteredData.length === 0) {
+                rankingList.innerHTML = '<div class="empty-state">没有找到相关记录</div>';
+                return;
+            }
+            
+            let html = '';
+            
+            if (currentTimeFilter === 'week') {
+                // 本周最高收入日和最高支出日
+                const dailyTotals = {};
+                
+                filteredData.forEach(item => {
+                    const date = new Date(item.date);
+                    const dateKey = date.toDateString();
+                    if (!dailyTotals[dateKey]) {
+                        dailyTotals[dateKey] = { date: date, income: 0, expense: 0 };
+                    }
+                    if (item.type === 'income') {
+                        dailyTotals[dateKey].income += item.amount;
+                    } else {
+                        dailyTotals[dateKey].expense += item.amount;
+                    }
+                });
+                
+                // 找出最高收入日和最高支出日
+                let maxIncomeDay = null;
+                let maxExpenseDay = null;
+                
+                Object.values(dailyTotals).forEach(day => {
+                    if (!maxIncomeDay || day.income > maxIncomeDay.income) {
+                        maxIncomeDay = day;
+                    }
+                    if (!maxExpenseDay || day.expense > maxExpenseDay.expense) {
+                        maxExpenseDay = day;
+                    }
+                });
+                
+                const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+                
+                if (maxIncomeDay) {
+                    const weekday = weekdays[maxIncomeDay.date.getDay()];
+                    const formattedDate = maxIncomeDay.date.toLocaleDateString('zh-CN') + ' ' + weekday;
+                    html += `
+                        <div class="ranking-item">
+                            <div class="ranking-category">
+                                <span>💰 本周最高收入日</span>
+                            </div>
+                            <div class="ranking-amount income-amount">${formattedDate} | ¥${maxIncomeDay.income.toFixed(2)}</div>
+                        </div>
+                    `;
+                }
+                
+                if (maxExpenseDay) {
+                    const weekday = weekdays[maxExpenseDay.date.getDay()];
+                    const formattedDate = maxExpenseDay.date.toLocaleDateString('zh-CN') + ' ' + weekday;
+                    html += `
+                        <div class="ranking-item">
+                            <div class="ranking-category">
+                                <span>💸 本周最高支出日</span>
+                            </div>
+                            <div class="ranking-amount expense-amount">${formattedDate} | ¥${maxExpenseDay.expense.toFixed(2)}</div>
+                        </div>
+                    `;
+                }
+            } else if (currentTimeFilter === 'year') {
+                // 今年最高收入月和最高支出月
+                const monthlyTotals = {};
+                
+                filteredData.forEach(item => {
+                    const date = new Date(item.date);
+                    const monthKey = `${date.getFullYear()}-${date.getMonth() + 1}`;
+                    if (!monthlyTotals[monthKey]) {
+                        monthlyTotals[monthKey] = { month: date.getMonth() + 1, income: 0, expense: 0 };
+                    }
+                    if (item.type === 'income') {
+                        monthlyTotals[monthKey].income += item.amount;
+                    } else {
+                        monthlyTotals[monthKey].expense += item.amount;
+                    }
+                });
+                
+                // 找出最高收入月和最高支出月
+                let maxIncomeMonth = null;
+                let maxExpenseMonth = null;
+                
+                Object.values(monthlyTotals).forEach(month => {
+                    if (!maxIncomeMonth || month.income > maxIncomeMonth.income) {
+                        maxIncomeMonth = month;
+                    }
+                    if (!maxExpenseMonth || month.expense > maxExpenseMonth.expense) {
+                        maxExpenseMonth = month;
+                    }
+                });
+                
+                if (maxIncomeMonth) {
+                    html += `
+                        <div class="ranking-item">
+                            <div class="ranking-category">
+                                <span>💰 今年最高收入月</span>
+                            </div>
+                            <div class="ranking-amount income-amount">${maxIncomeMonth.month}月 | ¥${maxIncomeMonth.income.toFixed(2)}</div>
+                        </div>
+                    `;
+                }
+                
+                if (maxExpenseMonth) {
+                    html += `
+                        <div class="ranking-item">
+                            <div class="ranking-category">
+                                <span>💸 今年最高支出月</span>
+                            </div>
+                            <div class="ranking-amount expense-amount">${maxExpenseMonth.month}月 | ¥${maxExpenseMonth.expense.toFixed(2)}</div>
+                        </div>
+                    `;
+                }
+            } else {
+                // 其他时间范围显示总体统计
+                let totalIncome = 0;
+                let totalExpense = 0;
+                
+                filteredData.forEach(item => {
+                    if (item.type === 'income') {
+                        totalIncome += item.amount;
+                    } else {
+                        totalExpense += item.amount;
+                    }
+                });
+                
+                const netProfit = totalIncome - totalExpense;
+                
+                html += `
+                    <div class="ranking-item">
+                        <div class="ranking-category">
+                            <span>💰 总收入</span>
+                        </div>
+                        <div class="ranking-amount income-amount">¥${totalIncome.toFixed(2)}</div>
+                    </div>
+                    <div class="ranking-item">
+                        <div class="ranking-category">
+                            <span>💸 总支出</span>
+                        </div>
+                        <div class="ranking-amount expense-amount">¥${totalExpense.toFixed(2)}</div>
+                    </div>
+                    <div class="ranking-item">
+                        <div class="ranking-category">
+                            <span>📊 结余</span>
+                        </div>
+                        <div class="ranking-amount balance-value">¥${netProfit.toFixed(2)}</div>
+                    </div>
+                `;
+            }
             
             rankingList.innerHTML = html;
         }
