@@ -210,6 +210,9 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             position: relative;
             transition: all 0.3s ease;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
         }
         .record-item:hover {
             transform: translateY(-2px);
@@ -217,24 +220,56 @@
         }
         .record-item .delete-btn {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 24px;
-            height: 24px;
+            top: 0;
+            right: -80px;
+            width: 80px;
+            height: 100%;
             border: none;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 12px;
+            background: rgba(255, 70, 70, 0.8);
+            color: white;
+            font-size: 14px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
         }
-        .record-item .delete-btn:hover {
-            background: rgba(255, 70, 70, 0.6);
-            transform: scale(1.1);
+        .record-item:hover .delete-btn {
+            right: 0;
+        }
+        .expense-item {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 18px 20px;
+            border-radius: 16px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .expense-item .delete-btn {
+            position: absolute;
+            top: 0;
+            right: -80px;
+            width: 80px;
+            height: 100%;
+            border: none;
+            background: rgba(255, 70, 70, 0.8);
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        .expense-item:hover .delete-btn {
+            right: 0;
         }
         .record-item .record-content {
             margin-bottom: 10px;
@@ -480,20 +515,6 @@
             color: rgba(255, 255, 255, 0.95);
             margin-top: 20px;
         }
-        .expense-item {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            padding: 18px 20px;
-            border-radius: 16px;
-            margin-bottom: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            transition: all 0.3s ease;
-            position: relative;
-        }
         .expense-item::before {
             content: '';
             position: absolute;
@@ -597,9 +618,9 @@
                     <button class="time-btn" onclick="setTimeFilter('month')">本月</button>
                     <button class="time-btn" onclick="setTimeFilter('year')">全年</button>
                     <div class="custom-date-filter" style="display: flex; gap: 10px; align-items: center; margin-top: 10px; flex-basis: 100%; justify-content: center;">
-                        <input type="date" id="startDate" style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 25px; background: rgba(255, 255, 255, 0.1); color: white; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);">
+                        <input type="date" id="startDate" style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 25px; background: rgba(255, 255, 255, 0.1); color: white; backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);">
                         <span style="color: white;">至</span>
-                        <input type="date" id="endDate" style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 25px; background: rgba(255, 255, 255, 0.1); color: white; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);">
+                        <input type="date" id="endDate" style="padding: 10px; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 25px; background: rgba(255, 255, 255, 0.1); color: white; backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);">
                         <button class="btn" onclick="setCustomDateFilter()" style="margin-top: 0;">应用</button>
                     </div>
                 </div>
@@ -793,7 +814,7 @@
                 const day = date.getDate();
                 const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
                 const weekday = weekdays[date.getDay()];
-                const formattedDate = `${year}年${month}月${day}日 ${weekday}`;
+                const formattedDate = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} ${weekday}`;
                 
                 // 计算当天的收支
                 const diaryDate = date.toDateString();
@@ -830,10 +851,24 @@
         }
 
         function deleteDiary(id) {
-            let diaries = JSON.parse(localStorage.getItem('diaries') || '[]');
-            diaries = diaries.filter(diary => diary.id !== id);
-            localStorage.setItem('diaries', JSON.stringify(diaries));
-            loadDiaries();
+            if (confirm('确定要删除这篇日记吗？')) {
+                let diaries = JSON.parse(localStorage.getItem('diaries') || '[]');
+                diaries = diaries.filter(diary => diary.id !== id);
+                localStorage.setItem('diaries', JSON.stringify(diaries));
+                loadDiaries();
+            }
+        }
+
+        function deleteFinance(id) {
+            if (confirm('确定要删除这笔记录吗？')) {
+                let myData = JSON.parse(localStorage.getItem('my_data') || '[]');
+                myData = myData.filter(item => item.id !== id);
+                localStorage.setItem('my_data', JSON.stringify(myData));
+                loadFinances();
+                calculate();
+                updateExpenseRanking();
+                updateDateRanking();
+            }
         }
 
         // 切换选项卡
@@ -1059,6 +1094,7 @@
                             <div class="expense-amount ${isIncome ? 'income-amount' : 'expense-amount'}">
                                 ${isIncome ? '+' : '-' }¥${item.amount.toFixed(2)}
                             </div>
+                            <button class="delete-btn" onclick="deleteFinance(${item.id})">&times;</button>
                         </div>
                     `;
                 });
@@ -1205,7 +1241,7 @@
                 html += `
                     <div class="ranking-item" style="cursor: pointer; transition: all 0.3s ease;" onclick="filterByDate('${dateKey}')">
                         <div class="ranking-category">
-                            <span>💸 支出最高的一天</span>
+                            <span>💰 消费最多的一天</span>
                         </div>
                         <div class="ranking-amount expense-amount">${formattedDate} | ¥${maxExpenseDay.expense.toFixed(2)}</div>
                     </div>
@@ -1215,166 +1251,78 @@
             rankingList.innerHTML = html;
         }
 
-        // 按日期筛选历史记录
-        function filterByDate(dateKey) {
-            const financeList = document.getElementById('financeList');
-            let myData = JSON.parse(localStorage.getItem('my_data') || '[]');
+        // 按时间筛选数据
+        function filterDataByTime(data, filter) {
+            const now = new Date();
+            let startDate, endDate;
             
-            // 按时间倒序排序
-            myData.sort((a, b) => new Date(b.date) - new Date(a.date));
-            
-            // 筛选指定日期的记录
-            const filteredData = myData.filter(item => {
-                const itemDate = new Date(item.date);
-                return itemDate.toDateString() === dateKey;
-            });
-            
-            if (filteredData.length === 0) {
-                financeList.innerHTML = '<div class="empty-state">没有找到该日期的记录</div>';
-                return;
+            switch (filter) {
+                case 'today':
+                    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                    endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+                    break;
+                case 'week':
+                    const dayOfWeek = now.getDay();
+                    const diff = now.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+                    startDate = new Date(now.getFullYear(), now.getMonth(), diff);
+                    endDate = new Date(startDate);
+                    endDate.setDate(startDate.getDate() + 6);
+                    endDate.setHours(23, 59, 59, 999);
+                    break;
+                case 'month':
+                    startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                    endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+                    break;
+                case 'year':
+                    startDate = new Date(now.getFullYear(), 0, 1);
+                    endDate = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999);
+                    break;
+                case 'custom':
+                    if (customDateRange) {
+                        startDate = customDateRange.start;
+                        endDate = customDateRange.end;
+                    } else {
+                        return [];
+                    }
+                    break;
+                default:
+                    return data;
             }
             
-            // 计算当天的收支
-            let dayIncome = 0;
-            let dayExpense = 0;
-            filteredData.forEach(item => {
-                if (item.type === 'income') {
-                    dayIncome += item.amount;
-                } else {
-                    dayExpense += item.amount;
-                }
+            return data.filter(item => {
+                const itemDate = new Date(item.date);
+                return itemDate >= startDate && itemDate <= endDate;
             });
-            
-            const dayNet = dayIncome - dayExpense;
-            const date = new Date(dateKey);
-            const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
-            const weekday = weekdays[date.getDay()];
-            const formattedDate = date.toLocaleDateString('zh-CN') + ' ' + weekday;
-            
-            let html = '';
-            
-            // 添加日期标题栏
-            html += `
-                <div class="day-summary" style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding: 20px; border-radius: 16px; margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.3); font-weight: 700; color: white; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div style="font-size: 18px;">${formattedDate}</div>
-                        <div style="font-size: 16px;">今日收：+¥${dayIncome.toFixed(2)} | 支：-¥${dayExpense.toFixed(2)}</div>
-                    </div>
-                </div>
-            `;
-            
-            // 添加当天的记录
-            filteredData.forEach(item => {
-                const isIncome = item.type === 'income';
-                
-                html += `
-                    <div class="expense-item">
-                        <div class="expense-category">
-                            <div class="category-icon">${item.icon}</div>
-                            <div class="expense-details">
-                                <div class="expense-category-name">${item.category}</div>
-                                <div class="expense-note">${item.note || '无备注'}</div>
-                            </div>
-                        </div>
-                        <div class="expense-amount ${isIncome ? 'income-amount' : 'expense-amount'}">
-                            ${isIncome ? '+' : '-' }¥${item.amount.toFixed(2)}
-                        </div>
-                    </div>
-                `;
-            });
-            
-            financeList.innerHTML = html;
         }
 
-        // 求和逻辑
+        // 计算财务数据
         function calculate() {
-            let myData = JSON.parse(localStorage.getItem('my_data') || '[]');
-            
-            // 根据时间筛选条件过滤数据
+            const myData = JSON.parse(localStorage.getItem('my_data') || '[]');
             const filteredData = filterDataByTime(myData, currentTimeFilter);
             
-            // 遍历数组，如果是 type == 'income' 就加，type == 'expense' 就减
             let totalIncome = 0;
             let totalExpense = 0;
             
             filteredData.forEach(item => {
                 if (item.type === 'income') {
                     totalIncome += item.amount;
-                } else if (item.type === 'expense') {
+                } else {
                     totalExpense += item.amount;
                 }
             });
             
-            // 计算结余
             const netProfit = totalIncome - totalExpense;
             
             // 更新显示
-            animateValue('totalIncome', totalIncome);
-            animateValue('totalExpense', totalExpense);
-            animateValue('netProfit', netProfit);
+            document.getElementById('totalIncome').textContent = `¥${totalIncome.toFixed(2)}`;
+            document.getElementById('totalExpense').textContent = `¥${totalExpense.toFixed(2)}`;
+            document.getElementById('netProfit').textContent = `¥${netProfit.toFixed(2)}`;
         }
 
-        // 根据时间筛选数据
-        function filterDataByTime(data, filter) {
-            if (filter === 'custom' && customDateRange) {
-                const { start, end } = customDateRange;
-                return data.filter(item => {
-                    const itemDate = new Date(item.date);
-                    return itemDate >= start && itemDate <= end;
-                });
-            }
-            
-            const now = new Date();
-            let startDate;
-            
-            switch(filter) {
-                case 'today':
-                    // 今天 00:00
-                    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-                    break;
-                case 'week':
-                    // 最近7天
-                    startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-                    break;
-                case 'month':
-                    // 本月1号
-                    startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-                    break;
-                case 'year':
-                    // 今年1月1号
-                    startDate = new Date(now.getFullYear(), 0, 1);
-                    break;
-                default:
-                    startDate = new Date(0); // 全部数据
-            }
-            
-            return data.filter(item => {
-                const itemDate = new Date(item.date);
-                return itemDate >= startDate;
-            });
-        }
-
-        // 数字滚动动画
-        function animateValue(elementId, targetValue) {
-            const element = document.getElementById(elementId);
-            const duration = 500;
-            const startTime = performance.now();
-            const startValue = parseFloat(element.textContent.replace(/[^0-9.]/g, '')) || 0;
-            
-            function updateValue(currentTime) {
-                const elapsed = currentTime - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                const currentValue = startValue + (targetValue - startValue) * progress;
-                
-                element.textContent = `¥${currentValue.toFixed(2)}`;
-                element.classList.add('count-up');
-                
-                if (progress < 1) {
-                    requestAnimationFrame(updateValue);
-                }
-            }
-            
-            requestAnimationFrame(updateValue);
+        // 按日期筛选
+        function filterByDate(dateString) {
+            // 这里可以实现按日期筛选的功能
+            console.log('Filter by date:', dateString);
         }
     </script>
 </body>
