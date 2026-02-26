@@ -1,4 +1,4 @@
-OCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -356,6 +356,69 @@ OCTYPE html>
             color: white;
             box-shadow: 0 0 20px rgba(25, 118, 210, 0.6);
         }
+        .time-btn {
+            padding: 12px 24px;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .time-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        .time-btn.active {
+            background: #1976D2;
+            color: white;
+            box-shadow: 0 0 20px rgba(25, 118, 210, 0.6);
+        }
+        .ranking-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .ranking-item {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 15px 20px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .ranking-category {
+            font-weight: 600;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .ranking-amount {
+            font-size: 18px;
+            font-weight: 700;
+            color: #FF5722;
+        }
+        .ranking-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: white;
+            margin-right: 10px;
+        }
         .tab-content {
             display: none;
         }
@@ -524,6 +587,16 @@ OCTYPE html>
                         <div class="stat-value balance-value" id="netProfit">¥0.00</div>
                     </div>
                 </div>
+                <div class="time-filter" style="display: flex; gap: 10px; margin-bottom: 30px; justify-content: center;">
+                    <button class="time-btn active" onclick="setTimeFilter('today')">今日</button>
+                    <button class="time-btn" onclick="setTimeFilter('week')">本周</button>
+                    <button class="time-btn" onclick="setTimeFilter('month')">本月</button>
+                    <button class="time-btn" onclick="setTimeFilter('year')">全年</button>
+                </div>
+                <div class="expense-ranking" style="margin-top: 30px;">
+                    <h4 style="color: rgba(255, 255, 255, 0.85); margin-bottom: 20px; font-size: 18px;">本月支出排行榜</h4>
+                    <div id="expenseRanking" class="ranking-list"></div>
+                </div>
             </div>
         </div>
 
@@ -639,6 +712,7 @@ OCTYPE html>
         // 变量隔离
         let selectedType = 'expense';
         let selectedCategory = '';
+        let currentTimeFilter = 'today';
 
         // 初始化
         document.addEventListener('DOMContentLoaded', function() {
@@ -646,6 +720,7 @@ OCTYPE html>
             loadFinances();
             updateMood(5);
             calculate();
+            updateExpenseRanking();
         });
 
         // 心情氛围
@@ -696,7 +771,9 @@ OCTYPE html>
             let html = '';
             diaries.forEach(diary => {
                 const date = new Date(diary.date);
-                const formattedDate = date.toLocaleString('zh-CN');
+                const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+                const weekday = weekdays[date.getDay()];
+                const formattedDate = date.toLocaleDateString('zh-CN') + ' ' + weekday + ' ' + date.toLocaleTimeString('zh-CN');
                 
                 html += `
                     <div class="record-item">
@@ -737,6 +814,19 @@ OCTYPE html>
             // 重置分类选择
             const categoryTags = document.querySelectorAll('.category-tag');
             categoryTags.forEach(tag => tag.classList.remove('active'));
+        }
+
+        // 设置时间筛选
+        function setTimeFilter(filter) {
+            currentTimeFilter = filter;
+            
+            // 切换时间按钮状态
+            const timeButtons = document.querySelectorAll('.time-btn');
+            timeButtons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // 更新统计数据
+            calculate();
         }
 
         // 选择分类
@@ -817,6 +907,7 @@ OCTYPE html>
             // 重新加载数据并更新统计
             loadFinances();
             calculate();
+            updateExpenseRanking();
             
             alert('记录保存成功！');
         }
@@ -837,7 +928,9 @@ OCTYPE html>
             let html = '';
             myData.forEach(item => {
                 const date = new Date(item.date);
-                const formattedDate = date.toLocaleString('zh-CN');
+                const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+                const weekday = weekdays[date.getDay()];
+                const formattedDate = date.toLocaleDateString('zh-CN') + ' ' + weekday;
                 const isIncome = item.type === 'income';
                 
                 html += `
@@ -846,7 +939,7 @@ OCTYPE html>
                             <div class="category-icon">${item.icon}</div>
                             <div class="expense-details">
                                 <div class="expense-category-name">${item.category}</div>
-                                <div class="expense-note">${item.note || '无备注'}</div>
+                                <div class="expense-note">${item.note || '无备注'} · ${formattedDate}</div>
                             </div>
                         </div>
                         <div class="expense-amount ${isIncome ? 'income-amount' : 'expense-amount'}">
@@ -859,15 +952,69 @@ OCTYPE html>
             financeList.innerHTML = html;
         }
 
+        // 更新本月支出排行榜
+        function updateExpenseRanking() {
+            const rankingList = document.getElementById('expenseRanking');
+            let myData = JSON.parse(localStorage.getItem('my_data') || '[]');
+            
+            // 筛选本月的支出记录
+            const now = new Date();
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            const monthlyExpenses = myData.filter(item => {
+                const itemDate = new Date(item.date);
+                return item.type === 'expense' && itemDate >= startOfMonth;
+            });
+            
+            // 按类别汇总金额
+            const categoryTotals = {};
+            monthlyExpenses.forEach(item => {
+                // 提取主类别（如：餐饮-早餐 -> 餐饮）
+                const mainCategory = item.category.split('-')[0];
+                if (!categoryTotals[mainCategory]) {
+                    categoryTotals[mainCategory] = 0;
+                }
+                categoryTotals[mainCategory] += item.amount;
+            });
+            
+            // 转换为数组并排序
+            const sortedCategories = Object.entries(categoryTotals)
+                .map(([category, amount]) => ({ category, amount }))
+                .sort((a, b) => b.amount - a.amount)
+                .slice(0, 3); // 只取前3名
+            
+            if (sortedCategories.length === 0) {
+                rankingList.innerHTML = '<div class="empty-state">本月还没有支出记录</div>';
+                return;
+            }
+            
+            let html = '';
+            sortedCategories.forEach((item, index) => {
+                html += `
+                    <div class="ranking-item">
+                        <div class="ranking-category">
+                            <div class="ranking-number">${index + 1}</div>
+                            ${item.category}
+                        </div>
+                        <div class="ranking-amount">¥${item.amount.toFixed(2)}</div>
+                    </div>
+                `;
+            });
+            
+            rankingList.innerHTML = html;
+        }
+
         // 求和逻辑
         function calculate() {
             let myData = JSON.parse(localStorage.getItem('my_data') || '[]');
+            
+            // 根据时间筛选条件过滤数据
+            const filteredData = filterDataByTime(myData, currentTimeFilter);
             
             // 遍历数组，如果是 type == 'income' 就加，type == 'expense' 就减
             let totalIncome = 0;
             let totalExpense = 0;
             
-            myData.forEach(item => {
+            filteredData.forEach(item => {
                 if (item.type === 'income') {
                     totalIncome += item.amount;
                 } else if (item.type === 'expense') {
@@ -882,6 +1029,38 @@ OCTYPE html>
             animateValue('totalIncome', totalIncome);
             animateValue('totalExpense', totalExpense);
             animateValue('netProfit', netProfit);
+        }
+
+        // 根据时间筛选数据
+        function filterDataByTime(data, filter) {
+            const now = new Date();
+            let startDate;
+            
+            switch(filter) {
+                case 'today':
+                    // 今天 00:00
+                    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                    break;
+                case 'week':
+                    // 最近7天
+                    startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    break;
+                case 'month':
+                    // 本月1号
+                    startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                    break;
+                case 'year':
+                    // 今年1月1号
+                    startDate = new Date(now.getFullYear(), 0, 1);
+                    break;
+                default:
+                    startDate = new Date(0); // 全部数据
+            }
+            
+            return data.filter(item => {
+                const itemDate = new Date(item.date);
+                return itemDate >= startDate;
+            });
         }
 
         // 数字滚动动画
