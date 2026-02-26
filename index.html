@@ -567,9 +567,23 @@
         .expense-amount {
             font-size: 22px;
             font-weight: 700;
-            color: white;
             flex-shrink: 0;
             margin-left: 20px;
+        }
+        .income-amount {
+            color: #4CAF50;
+        }
+        .expense-amount {
+            color: #FF5722;
+        }
+        .income-value {
+            color: #4CAF50;
+        }
+        .expense-value {
+            color: #FF5722;
+        }
+        .balance-value {
+            color: #2196F3;
         }
         @keyframes countUp {
             0% { opacity: 0; transform: translateY(10px) scale(0.9); }
@@ -609,94 +623,110 @@
 
         <!-- 记账模块 -->
         <div class="module-card">
-            <h2>💰 消费记录</h2>
+            <h2>💰 财务管理</h2>
             
             <!-- 财务简报区域 -->
             <div class="finance-summary">
-                <h3>财务简报</h3>
+                <h3>财务看板</h3>
                 <div class="summary-stats">
                     <div class="stat-item">
-                        <div class="stat-label">今日支出</div>
-                        <div class="stat-value" id="todayExpense">¥0.00</div>
+                        <div class="stat-label">今日总收入</div>
+                        <div class="stat-value income-value" id="todayIncome">¥0.00</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-label">本周汇总</div>
-                        <div class="stat-value" id="weekExpense">¥0.00</div>
+                        <div class="stat-label">今日总支出</div>
+                        <div class="stat-value expense-value" id="todayExpense">¥0.00</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-label">本月总计</div>
-                        <div class="stat-value" id="monthExpense">¥0.00</div>
+                        <div class="stat-label">今日结余</div>
+                        <div class="stat-value balance-value" id="todayBalance">¥0.00</div>
                     </div>
                 </div>
                 <div class="filter-buttons">
-                    <button class="filter-btn" onclick="filterExpenses('halfMonth')">最近半个月</button>
-                    <button class="filter-btn" onclick="filterExpenses('halfYear')">最近半年</button>
-                    <button class="filter-btn" onclick="filterExpenses('year')">今年全年</button>
+                    <button class="filter-btn" onclick="filterFinances('week')">本周</button>
+                    <button class="filter-btn" onclick="filterFinances('month')">本月</button>
+                    <button class="filter-btn" onclick="filterFinances('year')">本年</button>
                 </div>
             </div>
             
-            <div class="form-group">
-                <label for="expenseAmount">消费金额</label>
-                <input type="number" id="expenseAmount" placeholder="0.00" step="0.01">
-            </div>
-            <div class="form-group">
-                <label>消费类别</label>
-                <div class="category-selector">
-                    <div class="category-tags">
-                        <div class="category-tag" data-category="餐饮-早餐" data-icon="🍞">餐饮-早餐</div>
-                        <div class="category-tag" data-category="餐饮-午餐" data-icon="🍱">餐饮-午餐</div>
-                        <div class="category-tag" data-category="餐饮-晚餐" data-icon="🍽️">餐饮-晚餐</div>
-                        <div class="category-tag" data-category="餐饮-零食" data-icon="🍪">餐饮-零食</div>
-                        <div class="category-tag" data-category="餐饮-饮料" data-icon="🥤">餐饮-饮料</div>
-                        <div class="category-tag" data-category="交通-公交" data-icon="🚌">交通-公交</div>
-                        <div class="category-tag" data-category="交通-地铁" data-icon="🚇">交通-地铁</div>
-                        <div class="category-tag" data-category="交通-打车" data-icon="🚖">交通-打车</div>
-                        <div class="category-tag" data-category="交通-加油" data-icon="⛽">交通-加油</div>
-                        <div class="category-tag" data-category="购物-衣物" data-icon="👔">购物-衣物</div>
-                        <div class="category-tag" data-category="购物-日用品" data-icon="🧺">购物-日用品</div>
-                        <div class="category-tag" data-category="购物-电子产品" data-icon="📱">购物-电子产品</div>
-                        <div class="category-tag" data-category="娱乐-电影" data-icon="🎬">娱乐-电影</div>
-                        <div class="category-tag" data-category="娱乐-游戏" data-icon="🎮">娱乐-游戏</div>
-                        <div class="category-tag" data-category="娱乐-旅游" data-icon="✈️">娱乐-旅游</div>
-                        <div class="category-tag" data-category="医疗-药品" data-icon="💊">医疗-药品</div>
-                        <div class="category-tag" data-category="医疗-检查" data-icon="🏥">医疗-检查</div>
-                        <div class="category-tag" data-category="教育-书籍" data-icon="📚">教育-书籍</div>
-                        <div class="category-tag" data-category="教育-课程" data-icon="🎓">教育-课程</div>
-                        <div class="category-tag" data-category="其他" data-icon="📦">其他</div>
+            <!-- 支出记录 -->
+            <div class="form-section">
+                <h3 style="color: rgba(255, 255, 255, 0.85); margin-bottom: 20px; font-size: 20px;">📤 支出记录</h3>
+                <div class="form-group">
+                    <label for="expenseAmount">支出金额</label>
+                    <input type="number" id="expenseAmount" placeholder="0.00" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>消费类别</label>
+                    <div class="category-selector">
+                        <div class="category-tags">
+                            <div class="category-tag" data-category="餐饮-早餐" data-icon="🍞">餐饮-早餐</div>
+                            <div class="category-tag" data-category="餐饮-午餐" data-icon="🍱">餐饮-午餐</div>
+                            <div class="category-tag" data-category="餐饮-晚餐" data-icon="🍽️">餐饮-晚餐</div>
+                            <div class="category-tag" data-category="餐饮-零食" data-icon="🍪">餐饮-零食</div>
+                            <div class="category-tag" data-category="餐饮-饮料" data-icon="🥤">餐饮-饮料</div>
+                            <div class="category-tag" data-category="交通-公交" data-icon="🚌">交通-公交</div>
+                            <div class="category-tag" data-category="交通-地铁" data-icon="🚇">交通-地铁</div>
+                            <div class="category-tag" data-category="交通-打车" data-icon="🚖">交通-打车</div>
+                            <div class="category-tag" data-category="交通-加油" data-icon="⛽">交通-加油</div>
+                            <div class="category-tag" data-category="购物-衣物" data-icon="👔">购物-衣物</div>
+                            <div class="category-tag" data-category="购物-日用品" data-icon="🧺">购物-日用品</div>
+                            <div class="category-tag" data-category="购物-电子产品" data-icon="📱">购物-电子产品</div>
+                            <div class="category-tag" data-category="娱乐-电影" data-icon="🎬">娱乐-电影</div>
+                            <div class="category-tag" data-category="娱乐-游戏" data-icon="🎮">娱乐-游戏</div>
+                            <div class="category-tag" data-category="娱乐-旅游" data-icon="✈️">娱乐-旅游</div>
+                            <div class="category-tag" data-category="医疗-药品" data-icon="💊">医疗-药品</div>
+                            <div class="category-tag" data-category="医疗-检查" data-icon="🏥">医疗-检查</div>
+                            <div class="category-tag" data-category="教育-书籍" data-icon="📚">教育-书籍</div>
+                            <div class="category-tag" data-category="教育-课程" data-icon="🎓">教育-课程</div>
+                            <div class="category-tag" data-category="其他" data-icon="📦">其他</div>
+                        </div>
                     </div>
                 </div>
+                <div class="form-group">
+                    <label for="expenseNote">用途备注</label>
+                    <textarea class="text-input" id="expenseNote" placeholder="备注信息..." style="min-height: 100px;"></textarea>
+                </div>
+                <button class="btn" onclick="saveExpense()">记录支出</button>
             </div>
-            <div class="form-group">
-                <label for="expenseNote">用途备注</label>
-                <textarea class="text-input" id="expenseNote" placeholder="备注信息..." style="min-height: 100px;"></textarea>
+            
+            <!-- 收入记录 -->
+            <div class="form-section" style="margin-top: 40px;">
+                <h3 style="color: rgba(255, 255, 255, 0.85); margin-bottom: 20px; font-size: 20px;">📥 收入记录</h3>
+                <div class="form-group">
+                    <label for="incomeAmount">收入金额</label>
+                    <input type="number" id="incomeAmount" placeholder="0.00" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>收入类别</label>
+                    <div class="category-selector">
+                        <div class="category-tags income-category-tags">
+                            <div class="category-tag" data-category="职业工资" data-icon="💼">职业工资</div>
+                            <div class="category-tag" data-category="奖金提成" data-icon="💰">奖金提成</div>
+                            <div class="category-tag" data-category="兼职副业" data-icon="📱">兼职副业</div>
+                            <div class="category-tag" data-category="投资收益" data-icon="📈">投资收益</div>
+                            <div class="category-tag" data-category="生活费" data-icon="🏠">生活费</div>
+                            <div class="category-tag" data-category="红包" data-icon="🎁">红包</div>
+                            <div class="category-tag" data-category="闲鱼转让" data-icon="📦">闲鱼转让</div>
+                            <div class="category-tag" data-category="退款" data-icon="↩️">退款</div>
+                            <div class="category-tag" data-category="其他收入" data-icon="➕">其他收入</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="incomeNote">收入备注</label>
+                    <textarea class="text-input" id="incomeNote" placeholder="备注信息..." style="min-height: 100px;"></textarea>
+                </div>
+                <button class="btn" onclick="saveIncome()">记录收入</button>
             </div>
-            <button class="btn" onclick="saveExpense()">记账</button>
-            <div class="record-list">
+            
+            <div class="record-list" style="margin-top: 40px;">
                 <h3>账单历史</h3>
-                <div id="expenseList"></div>
+                <div id="financeList"></div>
             </div>
         </div>
 
-        <!-- 经期模块 -->
-        <div class="module-card">
-            <h2>🌸 经期记录</h2>
-            <div class="period-status">
-                <label for="periodToday">今日生理期</label>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="periodToday">
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
-            <button class="btn" onclick="savePeriod()">保存状态</button>
-            <div class="period-prediction">
-                <h3>下次月经预测</h3>
-                <p id="periodPrediction">记录几次月经周期后，将为你预测下次月经时间</p>
-            </div>
-            <div class="record-list">
-                <h3>经期历史</h3>
-                <div id="periodList"></div>
-            </div>
-        </div>
+
     </div>
 
     <script>
@@ -704,9 +734,10 @@
         document.addEventListener('DOMContentLoaded', function() {
             loadDiaries();
             loadExpenses();
-            loadPeriods();
+            loadIncomes();
             updateMood(5);
             initCategorySelector();
+            initIncomeCategorySelector();
             updateFinanceSummary();
         });
 
@@ -715,8 +746,23 @@
             const categoryTags = document.querySelectorAll('.category-tag');
             categoryTags.forEach(tag => {
                 tag.addEventListener('click', function() {
-                    // 移除所有标签的活动状态
-                    categoryTags.forEach(t => t.classList.remove('active'));
+                    // 移除同组标签的活动状态
+                    const parent = this.closest('.category-tags');
+                    parent.querySelectorAll('.category-tag').forEach(t => t.classList.remove('active'));
+                    // 添加当前标签的活动状态
+                    this.classList.add('active');
+                });
+            });
+        }
+
+        // 初始化收入分类选择器
+        function initIncomeCategorySelector() {
+            const incomeCategoryTags = document.querySelectorAll('.income-category-tags .category-tag');
+            incomeCategoryTags.forEach(tag => {
+                tag.addEventListener('click', function() {
+                    // 移除同组标签的活动状态
+                    const parent = this.closest('.income-category-tags');
+                    parent.querySelectorAll('.category-tag').forEach(t => t.classList.remove('active'));
                     // 添加当前标签的活动状态
                     this.classList.add('active');
                 });
@@ -765,7 +811,10 @@
             const diaryList = document.getElementById('diaryList');
             
             let diaries = JSON.parse(localStorage.getItem('diaries') || '[]');
+            let expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
+            let incomes = JSON.parse(localStorage.getItem('incomes') || '[]');
             
+            // 筛选日记
             const filteredDiaries = diaries.filter(diary => {
                 const matchesSearch = diary.content.toLowerCase().includes(searchTerm);
                 
@@ -783,26 +832,75 @@
             
             if (filteredDiaries.length === 0) {
                 diaryList.innerHTML = '<div class="empty-state">没有找到匹配的日记</div>';
-                return;
+            } else {
+                let html = '';
+                filteredDiaries.forEach(diary => {
+                    const date = new Date(diary.date);
+                    const formattedDate = date.toLocaleString('zh-CN');
+                    
+                    html += `
+                        <div class="record-item">
+                            <button class="delete-btn" onclick="deleteDiary(${diary.id})">&times;</button>
+                            <div class="record-content">${diary.content}</div>
+                            <div class="record-meta">
+                                <span>${formattedDate}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                diaryList.innerHTML = html;
             }
             
-            let html = '';
-            filteredDiaries.forEach(diary => {
-                const date = new Date(diary.date);
-                const formattedDate = date.toLocaleString('zh-CN');
+            // 同时搜索财务记录
+            if (searchTerm) {
+                const financeList = document.getElementById('financeList');
+                let allFinances = [...expenses, ...incomes];
                 
-                html += `
-                    <div class="record-item">
-                        <button class="delete-btn" onclick="deleteDiary(${diary.id})">&times;</button>
-                        <div class="record-content">${diary.content}</div>
-                        <div class="record-meta">
-                            <span>${formattedDate}</span>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            diaryList.innerHTML = html;
+                const filteredFinances = allFinances.filter(item => {
+                    const matchesSearch = item.note.toLowerCase().includes(searchTerm) ||
+                                         item.category.toLowerCase().includes(searchTerm);
+                    
+                    let matchesDate = true;
+                    if (selectedDate) {
+                        const itemDate = new Date(item.date);
+                        const filterDate = new Date(selectedDate);
+                        matchesDate = itemDate.getFullYear() === filterDate.getFullYear() &&
+                                     itemDate.getMonth() === filterDate.getMonth() &&
+                                     itemDate.getDate() === filterDate.getDate();
+                    }
+                    
+                    return matchesSearch && matchesDate;
+                });
+                
+                if (filteredFinances.length === 0) {
+                    financeList.innerHTML = '<div class="empty-state">没有找到匹配的财务记录</div>';
+                } else {
+                    let html = '';
+                    filteredFinances.forEach(item => {
+                        const date = new Date(item.date);
+                        const formattedDate = date.toLocaleString('zh-CN');
+                        const isIncome = item.type === 'income';
+                        
+                        html += `
+                            <div class="expense-item ${isIncome ? 'income-item' : 'expense-item'}">
+                                <div class="expense-category">
+                                    <div class="category-icon">${item.icon}</div>
+                                    <div class="expense-details">
+                                        <div class="expense-category-name">${item.category}</div>
+                                        <div class="expense-note">${item.note || '无备注'}</div>
+                                    </div>
+                                </div>
+                                <div class="expense-amount ${isIncome ? 'income-amount' : 'expense-amount'}">
+                                    ${isIncome ? '+' : '-' }¥${item.amount.toFixed(2)}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    financeList.innerHTML = html;
+                }
+            }
         }
 
         function loadDiaries() {
@@ -816,10 +914,10 @@
             searchDiaries();
         }
 
-        // 记账模块
+        // 记账模块 - 支出
         function saveExpense() {
             const amount = document.getElementById('expenseAmount').value;
-            const selectedTag = document.querySelector('.category-tag.active');
+            const selectedTag = document.querySelector('.category-tags:not(.income-category-tags) .category-tag.active');
             const note = document.getElementById('expenseNote').value;
             
             if (!amount || parseFloat(amount) <= 0) {
@@ -841,7 +939,8 @@
                 category: category,
                 icon: icon,
                 note: note,
-                date: new Date().toISOString()
+                date: new Date().toISOString(),
+                type: 'expense'
             };
             
             let expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
@@ -851,89 +950,144 @@
             document.getElementById('expenseAmount').value = '';
             document.getElementById('expenseNote').value = '';
             selectedTag.classList.remove('active');
-            loadExpenses();
+            loadFinances();
             updateFinanceSummary();
-            alert('记账成功！');
+            alert('支出记录成功！');
         }
 
-        function loadExpenses() {
-            const expenseList = document.getElementById('expenseList');
-            let expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
+        // 记账模块 - 收入
+        function saveIncome() {
+            const amount = document.getElementById('incomeAmount').value;
+            const selectedTag = document.querySelector('.income-category-tags .category-tag.active');
+            const note = document.getElementById('incomeNote').value;
             
-            if (expenses.length === 0) {
-                expenseList.innerHTML = '<div class="empty-state">还没有消费记录</div>';
+            if (!amount || parseFloat(amount) <= 0) {
+                alert('请输入有效的收入金额！');
+                return;
+            }
+            
+            if (!selectedTag) {
+                alert('请选择收入类别！');
+                return;
+            }
+            
+            const category = selectedTag.dataset.category;
+            const icon = selectedTag.dataset.icon;
+            
+            const income = {
+                id: Date.now(),
+                amount: parseFloat(amount),
+                category: category,
+                icon: icon,
+                note: note,
+                date: new Date().toISOString(),
+                type: 'income'
+            };
+            
+            let incomes = JSON.parse(localStorage.getItem('incomes') || '[]');
+            incomes.unshift(income);
+            localStorage.setItem('incomes', JSON.stringify(incomes));
+            
+            document.getElementById('incomeAmount').value = '';
+            document.getElementById('incomeNote').value = '';
+            selectedTag.classList.remove('active');
+            loadFinances();
+            updateFinanceSummary();
+            alert('收入记录成功！');
+        }
+
+        // 加载收入记录
+        function loadIncomes() {
+            // 收入记录会在 loadFinances 中统一加载
+        }
+
+        // 加载所有财务记录
+        function loadFinances() {
+            const financeList = document.getElementById('financeList');
+            let expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
+            let incomes = JSON.parse(localStorage.getItem('incomes') || '[]');
+            
+            // 合并并按日期排序
+            let allFinances = [...expenses, ...incomes].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            if (allFinances.length === 0) {
+                financeList.innerHTML = '<div class="empty-state">还没有财务记录</div>';
                 return;
             }
             
             let html = '';
-            expenses.forEach(expense => {
-                const date = new Date(expense.date);
+            allFinances.forEach(item => {
+                const date = new Date(item.date);
                 const formattedDate = date.toLocaleString('zh-CN');
+                const isIncome = item.type === 'income';
                 
                 html += `
-                    <div class="expense-item">
+                    <div class="expense-item ${isIncome ? 'income-item' : 'expense-item'}">
                         <div class="expense-category">
-                            <div class="category-icon">${expense.icon}</div>
+                            <div class="category-icon">${item.icon}</div>
                             <div class="expense-details">
-                                <div class="expense-category-name">${expense.category}</div>
-                                <div class="expense-note">${expense.note || '无备注'}</div>
+                                <div class="expense-category-name">${item.category}</div>
+                                <div class="expense-note">${item.note || '无备注'}</div>
                             </div>
                         </div>
-                        <div class="expense-amount">¥${expense.amount.toFixed(2)}</div>
+                        <div class="expense-amount ${isIncome ? 'income-amount' : 'expense-amount'}">
+                            ${isIncome ? '+' : '-' }¥${item.amount.toFixed(2)}
+                        </div>
                     </div>
                 `;
             });
             
-            expenseList.innerHTML = html;
+            financeList.innerHTML = html;
         }
 
         function deleteExpense(id) {
             let expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
             expenses = expenses.filter(expense => expense.id !== id);
             localStorage.setItem('expenses', JSON.stringify(expenses));
-            loadExpenses();
+            loadFinances();
+            updateFinanceSummary();
+        }
+
+        function deleteIncome(id) {
+            let incomes = JSON.parse(localStorage.getItem('incomes') || '[]');
+            incomes = incomes.filter(income => income.id !== id);
+            localStorage.setItem('incomes', JSON.stringify(incomes));
+            loadFinances();
             updateFinanceSummary();
         }
 
         // 财务汇总
         function updateFinanceSummary() {
             let expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
+            let incomes = JSON.parse(localStorage.getItem('incomes') || '[]');
             const today = new Date();
             
             // 计算今日支出
             const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
             const todayEnd = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
-            const todayTotal = expenses
+            
+            const todayExpenses = expenses
                 .filter(expense => {
                     const expenseDate = new Date(expense.date);
                     return expenseDate >= todayStart && expenseDate <= todayEnd;
                 })
                 .reduce((sum, expense) => sum + expense.amount, 0);
             
-            // 计算本周支出
-            const weekStart = new Date(today);
-            weekStart.setDate(today.getDate() - today.getDay());
-            weekStart.setHours(0, 0, 0, 0);
-            const weekTotal = expenses
-                .filter(expense => {
-                    const expenseDate = new Date(expense.date);
-                    return expenseDate >= weekStart;
+            // 计算今日收入
+            const todayIncomes = incomes
+                .filter(income => {
+                    const incomeDate = new Date(income.date);
+                    return incomeDate >= todayStart && incomeDate <= todayEnd;
                 })
-                .reduce((sum, expense) => sum + expense.amount, 0);
+                .reduce((sum, income) => sum + income.amount, 0);
             
-            // 计算本月支出
-            const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-            const monthTotal = expenses
-                .filter(expense => {
-                    const expenseDate = new Date(expense.date);
-                    return expenseDate >= monthStart;
-                })
-                .reduce((sum, expense) => sum + expense.amount, 0);
+            // 计算今日结余
+            const todayBalance = todayIncomes - todayExpenses;
             
             // 更新显示
-            animateValue('todayExpense', todayTotal);
-            animateValue('weekExpense', weekTotal);
-            animateValue('monthExpense', monthTotal);
+            animateValue('todayIncome', todayIncomes);
+            animateValue('todayExpense', todayExpenses);
+            animateValue('todayBalance', todayBalance);
         }
 
         // 数字滚动动画
@@ -959,44 +1113,54 @@
             requestAnimationFrame(updateValue);
         }
 
-        // 筛选支出
-        function filterExpenses(filterType) {
+        // 筛选财务数据
+        function filterFinances(filterType) {
             // 更新筛选按钮状态
             const filterButtons = document.querySelectorAll('.filter-btn');
             filterButtons.forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
             
             let expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
+            let incomes = JSON.parse(localStorage.getItem('incomes') || '[]');
             const today = new Date();
             let filterStart;
             let filterName;
             
             switch(filterType) {
-                case 'halfMonth':
+                case 'week':
                     filterStart = new Date(today);
-                    filterStart.setDate(today.getDate() - 15);
-                    filterName = '最近半个月';
+                    filterStart.setDate(today.getDate() - today.getDay());
+                    filterStart.setHours(0, 0, 0, 0);
+                    filterName = '本周';
                     break;
-                case 'halfYear':
-                    filterStart = new Date(today);
-                    filterStart.setMonth(today.getMonth() - 6);
-                    filterName = '最近半年';
+                case 'month':
+                    filterStart = new Date(today.getFullYear(), today.getMonth(), 1);
+                    filterName = '本月';
                     break;
                 case 'year':
                     filterStart = new Date(today.getFullYear(), 0, 1);
-                    filterName = '今年全年';
+                    filterName = '本年';
                     break;
                 default:
                     filterStart = new Date(0);
                     filterName = '全部时间';
             }
             
+            // 筛选支出
             const filteredExpenses = expenses.filter(expense => {
                 const expenseDate = new Date(expense.date);
                 return expenseDate >= filterStart;
             });
             
-            const total = filteredExpenses.reduce((sum, expense) => sum + expense.amount, 0);
+            // 筛选收入
+            const filteredIncomes = incomes.filter(income => {
+                const incomeDate = new Date(income.date);
+                return incomeDate >= filterStart;
+            });
+            
+            const totalExpenses = filteredExpenses.reduce((sum, expense) => sum + expense.amount, 0);
+            const totalIncomes = filteredIncomes.reduce((sum, income) => sum + income.amount, 0);
+            const balance = totalIncomes - totalExpenses;
             
             // 创建一个临时的统计元素显示结果
             const resultElement = document.createElement('div');
@@ -1015,10 +1179,24 @@
                 text-align: center;
                 z-index: 1000;
                 animation: fadeIn 0.3s ease;
+                min-width: 300px;
             `;
             resultElement.innerHTML = `
-                <h3 style="margin-bottom: 20px;">${filterName}总支出</h3>
-                <div style="font-size: 32px; font-weight: 700; margin-bottom: 20px;">¥${total.toFixed(2)}</div>
+                <h3 style="margin-bottom: 20px;">${filterName}财务汇总</h3>
+                <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>总收入：</span>
+                        <span style="font-size: 20px; font-weight: 700; color: #4CAF50;">¥${totalIncomes.toFixed(2)}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>总支出：</span>
+                        <span style="font-size: 20px; font-weight: 700; color: #FF5722;">¥${totalExpenses.toFixed(2)}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.2); padding-top: 10px;">
+                        <span style="font-weight: 600;">结余：</span>
+                        <span style="font-size: 24px; font-weight: 700; color: ${balance >= 0 ? '#4CAF50' : '#FF5722'};">¥${balance.toFixed(2)}</span>
+                    </div>
+                </div>
                 <button style="
                     padding: 10px 20px;
                     background: rgba(255, 255, 255, 0.2);
@@ -1044,97 +1222,7 @@
             }, 100);
         }
 
-        // 经期模块
-        function savePeriod() {
-            const isPeriod = document.getElementById('periodToday').checked;
-            
-            const period = {
-                id: Date.now(),
-                isPeriod: isPeriod,
-                date: new Date().toISOString()
-            };
-            
-            let periods = JSON.parse(localStorage.getItem('periods') || '[]');
-            periods.unshift(period);
-            localStorage.setItem('periods', JSON.stringify(periods));
-            
-            document.getElementById('periodToday').checked = false;
-            loadPeriods();
-            predictNextPeriod();
-            alert('状态保存成功！');
-        }
 
-        function loadPeriods() {
-            const periodList = document.getElementById('periodList');
-            let periods = JSON.parse(localStorage.getItem('periods') || '[]');
-            
-            if (periods.length === 0) {
-                periodList.innerHTML = '<div class="empty-state">还没有经期记录</div>';
-                return;
-            }
-            
-            let html = '';
-            periods.forEach(period => {
-                const date = new Date(period.date);
-                const formattedDate = date.toLocaleString('zh-CN');
-                
-                html += `
-                    <div class="record-item">
-                        <button class="delete-btn" onclick="deletePeriod(${period.id})">&times;</button>
-                        <div class="record-content">
-                            ${period.isPeriod ? '📅 今日生理期' : '📅 非生理期'}
-                        </div>
-                        <div class="record-meta">
-                            <span>${formattedDate}</span>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            periodList.innerHTML = html;
-        }
-
-        function deletePeriod(id) {
-            let periods = JSON.parse(localStorage.getItem('periods') || '[]');
-            periods = periods.filter(period => period.id !== id);
-            localStorage.setItem('periods', JSON.stringify(periods));
-            loadPeriods();
-            predictNextPeriod();
-        }
-
-        function predictNextPeriod() {
-            const predictionElement = document.getElementById('periodPrediction');
-            let periods = JSON.parse(localStorage.getItem('periods') || '[]');
-            
-            // 过滤出生理期记录
-            const periodDates = periods
-                .filter(period => period.isPeriod)
-                .map(period => new Date(period.date))
-                .sort((a, b) => b - a); // 按日期降序排序
-            
-            if (periodDates.length < 2) {
-                predictionElement.textContent = '记录几次月经周期后，将为你预测下次月经时间';
-                return;
-            }
-            
-            // 计算周期长度
-            const cycles = [];
-            for (let i = 0; i < periodDates.length - 1; i++) {
-                const days = (periodDates[i] - periodDates[i + 1]) / (1000 * 60 * 60 * 24);
-                cycles.push(Math.round(days));
-            }
-            
-            // 计算平均周期
-            const averageCycle = Math.round(cycles.reduce((sum, cycle) => sum + cycle, 0) / cycles.length);
-            
-            // 预测下次月经时间
-            const lastPeriod = periodDates[0];
-            const nextPeriod = new Date(lastPeriod);
-            nextPeriod.setDate(lastPeriod.getDate() + averageCycle);
-            
-            const formattedNextPeriod = nextPeriod.toLocaleDateString('zh-CN');
-            predictionElement.textContent = `根据历史记录，你的平均月经周期为 ${averageCycle} 天，下次月经预计在 ${formattedNextPeriod}`;
-        }
     </script>
 </body>
 </html>
