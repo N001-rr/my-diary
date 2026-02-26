@@ -56,13 +56,38 @@
         h1 {
             text-align: center;
             font-size: 32px;
-            margin-bottom: 50px;
+            margin-bottom: 30px;
             font-weight: 700;
             background: linear-gradient(90deg, #fff, #f8f9fa);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .search-container {
+            margin-bottom: 30px;
+        }
+        .search-container input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            font-family: inherit;
+            letter-spacing: 0.1rem;
+            transition: all 0.3s ease;
+        }
+        .search-container input:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
+        }
+        .search-container input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
         }
         .mood-score {
             margin-bottom: 50px;
@@ -215,10 +240,55 @@
             margin-bottom: 20px;
             border: 1px solid rgba(255, 255, 255, 0.15);
             transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
         .diary-item:hover {
             transform: translateY(-5px);
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+        }
+        .diary-item.deleting {
+            animation: slideOut 0.5s ease forwards;
+        }
+        @keyframes slideOut {
+            0% {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(-100%);
+                opacity: 0;
+                height: 0;
+                margin-bottom: 0;
+                padding: 0;
+            }
+        }
+        .delete-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+        }
+        .diary-item:hover .delete-btn {
+            opacity: 1;
+            visibility: visible;
+        }
+        .delete-btn:hover {
+            background: rgba(255, 70, 70, 0.6);
+            transform: scale(1.1);
         }
         .diary-item .diary-score {
             font-weight: 600;
@@ -241,6 +311,9 @@
 <body>
     <div class="container">
         <h1>心情日记</h1>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="搜索日记..." oninput="searchDiaries()">
+        </div>
         <div class="mood-score">
             <label for="moodRange">心情打分：</label>
             <div class="slider-container">
@@ -319,7 +392,88 @@
             updateMoodScore(5);
             
             // 更新日记列表显示
-            displayDiaryList();
+            searchDiaries();
+        }
+
+        function formatTime(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+            
+            if (diffMins < 1) {
+                return '刚刚';
+            } else if (diffMins < 60) {
+                return `${diffMins}分钟前`;
+            } else if (diffHours < 24) {
+                return `${diffHours}小时前`;
+            } else if (diffDays < 7) {
+                return `${diffDays}天前`;
+            } else {
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                return `${month}-${day} ${hours}:${minutes}`;
+            }
+        }
+
+        function searchDiaries() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const diaryItemsContainer = document.getElementById('diaryItems');
+            
+            // 从localStorage获取日记
+            let diaries = JSON.parse(localStorage.getItem('moodDiaries') || '[]');
+            
+            // 过滤日记
+            const filteredDiaries = diaries.filter(diary => 
+                diary.content.toLowerCase().includes(searchTerm)
+            );
+            
+            if (filteredDiaries.length === 0) {
+                diaryItemsContainer.innerHTML = '<p style="color: rgba(255, 255, 255, 0.6); text-align: center;">没有找到匹配的日记</p>';
+                return;
+            }
+            
+            // 生成日记列表HTML
+            let html = '';
+            filteredDiaries.forEach((diary, index) => {
+                html += `
+                    <div class="diary-item" data-index="${index}">
+                        <button class="delete-btn" onclick="deleteDiary(${index})">×</button>
+                        <div class="diary-score">心情分数：${diary.score}/10</div>
+                        <div class="diary-content">${diary.content}</div>
+                        <div class="diary-date">${formatTime(diary.date)}</div>
+                    </div>
+                `;
+            });
+            
+            diaryItemsContainer.innerHTML = html;
+        }
+
+        function deleteDiary(index) {
+            // 从localStorage获取日记
+            let diaries = JSON.parse(localStorage.getItem('moodDiaries') || '[]');
+            
+            // 获取要删除的元素
+            const diaryItem = document.querySelector(`.diary-item[data-index="${index}"]`);
+            
+            // 添加删除动画
+            diaryItem.classList.add('deleting');
+            
+            // 动画结束后删除元素并更新localStorage
+            setTimeout(() => {
+                // 从数组中删除
+                diaries.splice(index, 1);
+                
+                // 保存到localStorage
+                localStorage.setItem('moodDiaries', JSON.stringify(diaries));
+                
+                // 重新搜索（保持搜索状态）
+                searchDiaries();
+            }, 500);
         }
 
         function displayDiaryList() {
@@ -329,18 +483,19 @@
             let diaries = JSON.parse(localStorage.getItem('moodDiaries') || '[]');
             
             if (diaries.length === 0) {
-                diaryItemsContainer.innerHTML = '<p style="color: rgba(255, 255, 255, 0.6); text-align: center;">还没有保存过心情日记</p>';
+                diaryItemsContainer.innerHTML = '<p style="color: rgba(255, 255, 255, 0.6); text-align: center;">今天还没有留下足迹呢。</p>';
                 return;
             }
             
             // 生成日记列表HTML
             let html = '';
-            diaries.forEach(diary => {
+            diaries.forEach((diary, index) => {
                 html += `
-                    <div class="diary-item">
+                    <div class="diary-item" data-index="${index}">
+                        <button class="delete-btn" onclick="deleteDiary(${index})">×</button>
                         <div class="diary-score">心情分数：${diary.score}/10</div>
                         <div class="diary-content">${diary.content}</div>
-                        <div class="diary-date">${diary.date}</div>
+                        <div class="diary-date">${formatTime(diary.date)}</div>
                     </div>
                 `;
             });
