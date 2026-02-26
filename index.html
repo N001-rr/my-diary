@@ -7,21 +7,40 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #2F4F4F;
+            background-color: #f0f0f0;
             margin: 0;
             padding: 20px;
         }
         .container {
             max-width: 600px;
             margin: 0 auto;
-            background-color:#2F4F4F;
+            background-color: white;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         h1 {
             text-align: center;
-            color: #87CEEB;
+            color: #333;
+        }
+        .mood-score {
+            margin-bottom: 20px;
+        }
+        .mood-score label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 16px;
+            color: #333;
+        }
+        .mood-score input[type="range"] {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .mood-score .score-value {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
         }
         .mood-input {
             width: 100%;
@@ -61,6 +80,11 @@
             margin-bottom: 10px;
             border-left: 4px solid #4CAF50;
         }
+        .diary-item .diary-score {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #4CAF50;
+        }
         .diary-item .diary-content {
             margin-bottom: 10px;
             line-height: 1.4;
@@ -75,6 +99,11 @@
 <body>
     <div class="container">
         <h1>心情日记</h1>
+        <div class="mood-score">
+            <label for="moodRange">心情打分：</label>
+            <input type="range" id="moodRange" min="1" max="10" value="5" oninput="updateMoodScore(this.value)">
+            <div class="score-value" id="scoreValue">5</div>
+        </div>
         <textarea class="mood-input" placeholder="写下你的心情..."></textarea>
         <button class="save-btn" onclick="saveMood()">保存</button>
         <div class="diary-list">
@@ -86,11 +115,42 @@
         // 页面加载时显示历史日记
         document.addEventListener('DOMContentLoaded', function() {
             displayDiaryList();
+            // 初始化背景色
+            updateMoodScore(5);
         });
+
+        function updateMoodScore(score) {
+            // 更新分数显示
+            document.getElementById('scoreValue').textContent = score;
+            
+            // 根据分数更新背景色
+            const body = document.body;
+            if (score < 4) {
+                body.style.backgroundColor = '#555';
+                // 调整文字颜色以适应深色背景
+                body.style.color = '#fff';
+                document.querySelector('.container').style.backgroundColor = '#333';
+                document.querySelector('.container').style.color = '#fff';
+            } else if (score > 7) {
+                body.style.backgroundColor = '#f39c12';
+                // 调整文字颜色以适应亮色背景
+                body.style.color = '#333';
+                document.querySelector('.container').style.backgroundColor = 'white';
+                document.querySelector('.container').style.color = '#333';
+            } else {
+                body.style.backgroundColor = '#4CAF50';
+                // 调整文字颜色以适应绿色背景
+                body.style.color = '#333';
+                document.querySelector('.container').style.backgroundColor = 'white';
+                document.querySelector('.container').style.color = '#333';
+            }
+        }
 
         function saveMood() {
             // 获取用户输入的心情内容
             const moodContent = document.querySelector('.mood-input').value;
+            // 获取心情分数
+            const moodScore = document.getElementById('moodRange').value;
             
             if (moodContent.trim() === '') {
                 alert('请输入你的心情！');
@@ -99,6 +159,7 @@
             
             // 创建日记对象
             const diary = {
+                score: moodScore,
                 content: moodContent,
                 date: new Date().toLocaleString('zh-CN')
             };
@@ -113,10 +174,13 @@
             localStorage.setItem('moodDiaries', JSON.stringify(diaries));
             
             // 显示成功提示
-            alert('太棒了！你的心情已存入星空，希望你天天开心。');
+            alert('太棒了！你的心情已存入星空。');
             
             // 清空输入框
             document.querySelector('.mood-input').value = '';
+            // 重置分数为5
+            document.getElementById('moodRange').value = 5;
+            updateMoodScore(5);
             
             // 更新日记列表显示
             displayDiaryList();
@@ -138,6 +202,7 @@
             diaries.forEach(diary => {
                 html += `
                     <div class="diary-item">
+                        <div class="diary-score">心情分数：${diary.score}/10</div>
                         <div class="diary-content">${diary.content}</div>
                         <div class="diary-date">${diary.date}</div>
                     </div>
