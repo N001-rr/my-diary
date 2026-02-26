@@ -585,6 +585,36 @@
         .balance-value {
             color: #2196F3;
         }
+        .finance-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .finance-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        .finance-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        }
+        .expense-card {
+            border-left: 4px solid #FF5722;
+        }
+        .income-card {
+            border-left: 4px solid #4CAF50;
+        }
+        @media (max-width: 768px) {
+            .finance-cards {
+                grid-template-columns: 1fr;
+            }
+        }
         @keyframes countUp {
             0% { opacity: 0; transform: translateY(10px) scale(0.9); }
             50% { opacity: 0.7; transform: translateY(-5px) scale(1.05); }
@@ -625,99 +655,103 @@
         <div class="module-card">
             <h2>💰 财务管理</h2>
             
-            <!-- 财务简报区域 -->
-            <div class="finance-summary">
-                <h3>财务看板</h3>
+            <!-- 本月财务报表 -->
+            <div class="finance-summary" style="margin-bottom: 30px;">
+                <h3>本月财务报表</h3>
                 <div class="summary-stats">
                     <div class="stat-item">
-                        <div class="stat-label">今日总收入</div>
-                        <div class="stat-value income-value" id="todayIncome">¥0.00</div>
+                        <div class="stat-label">总收入</div>
+                        <div class="stat-value income-value" id="totalIncome">¥0.00</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-label">今日总支出</div>
-                        <div class="stat-value expense-value" id="todayExpense">¥0.00</div>
+                        <div class="stat-label">总支出</div>
+                        <div class="stat-value expense-value" id="totalExpense">¥0.00</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-label">今日结余</div>
-                        <div class="stat-value balance-value" id="todayBalance">¥0.00</div>
+                        <div class="stat-label">实际净赚</div>
+                        <div class="stat-value balance-value" id="netProfit">¥0.00</div>
                     </div>
                 </div>
                 <div class="filter-buttons">
-                    <button class="filter-btn" onclick="filterFinances('week')">本周</button>
-                    <button class="filter-btn" onclick="filterFinances('month')">本月</button>
-                    <button class="filter-btn" onclick="filterFinances('year')">本年</button>
+                    <button class="filter-btn active" onclick="updateFinanceReport('today')">今日</button>
+                    <button class="filter-btn" onclick="updateFinanceReport('week')">本周</button>
+                    <button class="filter-btn" onclick="updateFinanceReport('month')">本月</button>
+                    <button class="filter-btn" onclick="updateFinanceReport('year')">全年</button>
                 </div>
             </div>
             
-            <!-- 支出记录 -->
-            <div class="form-section">
-                <h3 style="color: rgba(255, 255, 255, 0.85); margin-bottom: 20px; font-size: 20px;">📤 支出记录</h3>
-                <div class="form-group">
-                    <label for="expenseAmount">支出金额</label>
-                    <input type="number" id="expenseAmount" placeholder="0.00" step="0.01">
-                </div>
-                <div class="form-group">
-                    <label>消费类别</label>
-                    <div class="category-selector">
-                        <div class="category-tags">
-                            <div class="category-tag" data-category="餐饮-早餐" data-icon="🍞">餐饮-早餐</div>
-                            <div class="category-tag" data-category="餐饮-午餐" data-icon="🍱">餐饮-午餐</div>
-                            <div class="category-tag" data-category="餐饮-晚餐" data-icon="🍽️">餐饮-晚餐</div>
-                            <div class="category-tag" data-category="餐饮-零食" data-icon="🍪">餐饮-零食</div>
-                            <div class="category-tag" data-category="餐饮-饮料" data-icon="🥤">餐饮-饮料</div>
-                            <div class="category-tag" data-category="交通-公交" data-icon="🚌">交通-公交</div>
-                            <div class="category-tag" data-category="交通-地铁" data-icon="🚇">交通-地铁</div>
-                            <div class="category-tag" data-category="交通-打车" data-icon="🚖">交通-打车</div>
-                            <div class="category-tag" data-category="交通-加油" data-icon="⛽">交通-加油</div>
-                            <div class="category-tag" data-category="购物-衣物" data-icon="👔">购物-衣物</div>
-                            <div class="category-tag" data-category="购物-日用品" data-icon="🧺">购物-日用品</div>
-                            <div class="category-tag" data-category="购物-电子产品" data-icon="📱">购物-电子产品</div>
-                            <div class="category-tag" data-category="娱乐-电影" data-icon="🎬">娱乐-电影</div>
-                            <div class="category-tag" data-category="娱乐-游戏" data-icon="🎮">娱乐-游戏</div>
-                            <div class="category-tag" data-category="娱乐-旅游" data-icon="✈️">娱乐-旅游</div>
-                            <div class="category-tag" data-category="医疗-药品" data-icon="💊">医疗-药品</div>
-                            <div class="category-tag" data-category="医疗-检查" data-icon="🏥">医疗-检查</div>
-                            <div class="category-tag" data-category="教育-书籍" data-icon="📚">教育-书籍</div>
-                            <div class="category-tag" data-category="教育-课程" data-icon="🎓">教育-课程</div>
-                            <div class="category-tag" data-category="其他" data-icon="📦">其他</div>
+            <!-- 收支记录卡片 -->
+            <div class="finance-cards">
+                <!-- 支出记录 -->
+                <div class="finance-card expense-card">
+                    <h3 style="color: rgba(255, 255, 255, 0.85); margin-bottom: 20px; font-size: 20px;">📤 支出记录</h3>
+                    <div class="form-group">
+                        <label for="expenseAmount">支出金额</label>
+                        <input type="number" id="expenseAmount" placeholder="0.00" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>消费类别</label>
+                        <div class="category-selector">
+                            <div class="category-tags">
+                                <div class="category-tag" data-category="餐饮-早餐" data-icon="🍞">餐饮-早餐</div>
+                                <div class="category-tag" data-category="餐饮-午餐" data-icon="🍱">餐饮-午餐</div>
+                                <div class="category-tag" data-category="餐饮-晚餐" data-icon="🍽️">餐饮-晚餐</div>
+                                <div class="category-tag" data-category="餐饮-零食" data-icon="🍪">餐饮-零食</div>
+                                <div class="category-tag" data-category="餐饮-饮料" data-icon="🥤">餐饮-饮料</div>
+                                <div class="category-tag" data-category="交通-公交" data-icon="🚌">交通-公交</div>
+                                <div class="category-tag" data-category="交通-地铁" data-icon="🚇">交通-地铁</div>
+                                <div class="category-tag" data-category="交通-打车" data-icon="🚖">交通-打车</div>
+                                <div class="category-tag" data-category="交通-加油" data-icon="⛽">交通-加油</div>
+                                <div class="category-tag" data-category="购物-衣物" data-icon="👔">购物-衣物</div>
+                                <div class="category-tag" data-category="购物-日用品" data-icon="🧺">购物-日用品</div>
+                                <div class="category-tag" data-category="购物-电子产品" data-icon="📱">购物-电子产品</div>
+                                <div class="category-tag" data-category="娱乐-电影" data-icon="🎬">娱乐-电影</div>
+                                <div class="category-tag" data-category="娱乐-游戏" data-icon="🎮">娱乐-游戏</div>
+                                <div class="category-tag" data-category="娱乐-旅游" data-icon="✈️">娱乐-旅游</div>
+                                <div class="category-tag" data-category="医疗-药品" data-icon="💊">医疗-药品</div>
+                                <div class="category-tag" data-category="医疗-检查" data-icon="🏥">医疗-检查</div>
+                                <div class="category-tag" data-category="教育-书籍" data-icon="📚">教育-书籍</div>
+                                <div class="category-tag" data-category="教育-课程" data-icon="🎓">教育-课程</div>
+                                <div class="category-tag" data-category="其他" data-icon="📦">其他</div>
+                            </div>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label for="expenseNote">用途备注</label>
+                        <textarea class="text-input" id="expenseNote" placeholder="备注信息..." style="min-height: 100px;"></textarea>
+                    </div>
+                    <button class="btn" onclick="saveExpense()">记录支出</button>
                 </div>
-                <div class="form-group">
-                    <label for="expenseNote">用途备注</label>
-                    <textarea class="text-input" id="expenseNote" placeholder="备注信息..." style="min-height: 100px;"></textarea>
-                </div>
-                <button class="btn" onclick="saveExpense()">记录支出</button>
-            </div>
-            
-            <!-- 收入记录 -->
-            <div class="form-section" style="margin-top: 40px;">
-                <h3 style="color: rgba(255, 255, 255, 0.85); margin-bottom: 20px; font-size: 20px;">📥 收入记录</h3>
-                <div class="form-group">
-                    <label for="incomeAmount">收入金额</label>
-                    <input type="number" id="incomeAmount" placeholder="0.00" step="0.01">
-                </div>
-                <div class="form-group">
-                    <label>收入类别</label>
-                    <div class="category-selector">
-                        <div class="category-tags income-category-tags">
-                            <div class="category-tag" data-category="职业工资" data-icon="💼">职业工资</div>
-                            <div class="category-tag" data-category="奖金提成" data-icon="💰">奖金提成</div>
-                            <div class="category-tag" data-category="兼职副业" data-icon="📱">兼职副业</div>
-                            <div class="category-tag" data-category="投资收益" data-icon="📈">投资收益</div>
-                            <div class="category-tag" data-category="生活费" data-icon="🏠">生活费</div>
-                            <div class="category-tag" data-category="红包" data-icon="🎁">红包</div>
-                            <div class="category-tag" data-category="闲鱼转让" data-icon="📦">闲鱼转让</div>
-                            <div class="category-tag" data-category="退款" data-icon="↩️">退款</div>
-                            <div class="category-tag" data-category="其他收入" data-icon="➕">其他收入</div>
+                
+                <!-- 收入记录 -->
+                <div class="finance-card income-card">
+                    <h3 style="color: rgba(255, 255, 255, 0.85); margin-bottom: 20px; font-size: 20px;">📥 收入记录</h3>
+                    <div class="form-group">
+                        <label for="incomeAmount">收入金额</label>
+                        <input type="number" id="incomeAmount" placeholder="0.00" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>收入类别</label>
+                        <div class="category-selector">
+                            <div class="category-tags income-category-tags">
+                                <div class="category-tag" data-category="职业工资" data-icon="💼">职业工资</div>
+                                <div class="category-tag" data-category="奖金提成" data-icon="💰">奖金提成</div>
+                                <div class="category-tag" data-category="兼职副业" data-icon="📱">兼职副业</div>
+                                <div class="category-tag" data-category="投资收益" data-icon="📈">投资收益</div>
+                                <div class="category-tag" data-category="生活费" data-icon="🏠">生活费</div>
+                                <div class="category-tag" data-category="红包" data-icon="🎁">红包</div>
+                                <div class="category-tag" data-category="闲鱼转让" data-icon="📦">闲鱼转让</div>
+                                <div class="category-tag" data-category="退款" data-icon="↩️">退款</div>
+                                <div class="category-tag" data-category="其他收入" data-icon="➕">其他收入</div>
+                            </div>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label for="incomeNote">收入备注</label>
+                        <textarea class="text-input" id="incomeNote" placeholder="备注信息..." style="min-height: 100px;"></textarea>
+                    </div>
+                    <button class="btn" onclick="saveIncome()">记录收入</button>
                 </div>
-                <div class="form-group">
-                    <label for="incomeNote">收入备注</label>
-                    <textarea class="text-input" id="incomeNote" placeholder="备注信息..." style="min-height: 100px;"></textarea>
-                </div>
-                <button class="btn" onclick="saveIncome()">记录收入</button>
             </div>
             
             <div class="record-list" style="margin-top: 40px;">
@@ -926,7 +960,7 @@
             }
             
             if (!selectedTag) {
-                alert('请选择消费类别！');
+                alert('请选择一个类别哦！');
                 return;
             }
             
@@ -947,11 +981,15 @@
             expenses.unshift(expense);
             localStorage.setItem('expenses', JSON.stringify(expenses));
             
+            // 清空输入框和选中状态
             document.getElementById('expenseAmount').value = '';
             document.getElementById('expenseNote').value = '';
             selectedTag.classList.remove('active');
+            
+            // 重新加载数据并更新统计
             loadFinances();
             updateFinanceSummary();
+            
             alert('支出记录成功！');
         }
 
@@ -967,7 +1005,7 @@
             }
             
             if (!selectedTag) {
-                alert('请选择收入类别！');
+                alert('请选择一个类别哦！');
                 return;
             }
             
@@ -988,11 +1026,15 @@
             incomes.unshift(income);
             localStorage.setItem('incomes', JSON.stringify(incomes));
             
+            // 清空输入框和选中状态
             document.getElementById('incomeAmount').value = '';
             document.getElementById('incomeNote').value = '';
             selectedTag.classList.remove('active');
+            
+            // 重新加载数据并更新统计
             loadFinances();
             updateFinanceSummary();
+            
             alert('收入记录成功！');
         }
 
@@ -1058,36 +1100,63 @@
 
         // 财务汇总
         function updateFinanceSummary() {
+            updateFinanceReport('today');
+        }
+
+        // 更新财务报表
+        function updateFinanceReport(period) {
+            // 更新筛选按钮状态
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
             let expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
             let incomes = JSON.parse(localStorage.getItem('incomes') || '[]');
             const today = new Date();
+            let periodStart;
             
-            // 计算今日支出
-            const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-            const todayEnd = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
+            switch(period) {
+                case 'today':
+                    periodStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                    break;
+                case 'week':
+                    periodStart = new Date(today);
+                    periodStart.setDate(today.getDate() - today.getDay());
+                    periodStart.setHours(0, 0, 0, 0);
+                    break;
+                case 'month':
+                    periodStart = new Date(today.getFullYear(), today.getMonth(), 1);
+                    break;
+                case 'year':
+                    periodStart = new Date(today.getFullYear(), 0, 1);
+                    break;
+                default:
+                    periodStart = new Date(0);
+            }
             
-            const todayExpenses = expenses
+            // 计算支出
+            const periodExpenses = expenses
                 .filter(expense => {
                     const expenseDate = new Date(expense.date);
-                    return expenseDate >= todayStart && expenseDate <= todayEnd;
+                    return expenseDate >= periodStart;
                 })
                 .reduce((sum, expense) => sum + expense.amount, 0);
             
-            // 计算今日收入
-            const todayIncomes = incomes
+            // 计算收入
+            const periodIncomes = incomes
                 .filter(income => {
                     const incomeDate = new Date(income.date);
-                    return incomeDate >= todayStart && incomeDate <= todayEnd;
+                    return incomeDate >= periodStart;
                 })
                 .reduce((sum, income) => sum + income.amount, 0);
             
-            // 计算今日结余
-            const todayBalance = todayIncomes - todayExpenses;
+            // 计算净赚
+            const netProfit = periodIncomes - periodExpenses;
             
             // 更新显示
-            animateValue('todayIncome', todayIncomes);
-            animateValue('todayExpense', todayExpenses);
-            animateValue('todayBalance', todayBalance);
+            animateValue('totalIncome', periodIncomes);
+            animateValue('totalExpense', periodExpenses);
+            animateValue('netProfit', netProfit);
         }
 
         // 数字滚动动画
