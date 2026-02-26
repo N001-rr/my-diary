@@ -247,9 +247,10 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
         .category-tag.active {
-            background: rgba(255, 255, 255, 0.25);
-            border-color: rgba(255, 255, 255, 0.8);
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+            background: #1976D2;
+            color: white;
+            border-color: #1565C0;
+            box-shadow: 0 0 20px rgba(25, 118, 210, 0.6);
             font-size: 16px;
             font-weight: 600;
         }
@@ -775,9 +776,13 @@
             updateFinanceSummary();
         });
 
+        // 全局变量用于记录当前选中的分类
+        let selectedExpenseCategory = null;
+        let selectedIncomeCategory = null;
+
         // 初始化分类选择器
         function initCategorySelector() {
-            const categoryTags = document.querySelectorAll('.category-tag');
+            const categoryTags = document.querySelectorAll('.category-tags:not(.income-category-tags) .category-tag');
             categoryTags.forEach(tag => {
                 tag.addEventListener('click', function() {
                     // 移除同组标签的活动状态
@@ -785,6 +790,8 @@
                     parent.querySelectorAll('.category-tag').forEach(t => t.classList.remove('active'));
                     // 添加当前标签的活动状态
                     this.classList.add('active');
+                    // 记录当前选中的分类
+                    selectedExpenseCategory = this.dataset.category;
                 });
             });
         }
@@ -799,6 +806,8 @@
                     parent.querySelectorAll('.category-tag').forEach(t => t.classList.remove('active'));
                     // 添加当前标签的活动状态
                     this.classList.add('active');
+                    // 记录当前选中的分类
+                    selectedIncomeCategory = this.dataset.category;
                 });
             });
         }
@@ -985,6 +994,8 @@
             document.getElementById('expenseAmount').value = '';
             document.getElementById('expenseNote').value = '';
             selectedTag.classList.remove('active');
+            // 重置选中的分类变量
+            selectedExpenseCategory = null;
             
             // 重新加载数据并更新统计
             loadFinances();
@@ -1030,6 +1041,8 @@
             document.getElementById('incomeAmount').value = '';
             document.getElementById('incomeNote').value = '';
             selectedTag.classList.remove('active');
+            // 重置选中的分类变量
+            selectedIncomeCategory = null;
             
             // 重新加载数据并更新统计
             loadFinances();
