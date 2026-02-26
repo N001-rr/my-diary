@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>心情日记</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #2F4F4F;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color:#2F4F4F;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #87CEEB;
+        }
+        .mood-input {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            resize: vertical;
+            font-size: 16px;
+        }
+        .save-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .save-btn:hover {
+            background-color: #45a049;
+        }
+        .diary-list {
+            margin-top: 30px;
+        }
+        .diary-list h2 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        .diary-item {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            border-left: 4px solid #4CAF50;
+        }
+        .diary-item .diary-content {
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+        .diary-item .diary-date {
+            font-size: 12px;
+            color: #666;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>心情日记</h1>
+        <textarea class="mood-input" placeholder="写下你的心情..."></textarea>
+        <button class="save-btn" onclick="saveMood()">保存</button>
+        <div class="diary-list">
+            <h2>历史日记</h2>
+            <div id="diaryItems"></div>
+        </div>
+    </div>
+    <script>
+        // 页面加载时显示历史日记
+        document.addEventListener('DOMContentLoaded', function() {
+            displayDiaryList();
+        });
+
+        function saveMood() {
+            // 获取用户输入的心情内容
+            const moodContent = document.querySelector('.mood-input').value;
+            
+            if (moodContent.trim() === '') {
+                alert('请输入你的心情！');
+                return;
+            }
+            
+            // 创建日记对象
+            const diary = {
+                content: moodContent,
+                date: new Date().toLocaleString('zh-CN')
+            };
+            
+            // 从localStorage获取现有日记
+            let diaries = JSON.parse(localStorage.getItem('moodDiaries') || '[]');
+            
+            // 添加新日记
+            diaries.unshift(diary); // 新日记放在最前面
+            
+            // 保存到localStorage
+            localStorage.setItem('moodDiaries', JSON.stringify(diaries));
+            
+            // 显示成功提示
+            alert('太棒了！你的心情已存入星空，希望你天天开心。');
+            
+            // 清空输入框
+            document.querySelector('.mood-input').value = '';
+            
+            // 更新日记列表显示
+            displayDiaryList();
+        }
+
+        function displayDiaryList() {
+            const diaryItemsContainer = document.getElementById('diaryItems');
+            
+            // 从localStorage获取日记
+            let diaries = JSON.parse(localStorage.getItem('moodDiaries') || '[]');
+            
+            if (diaries.length === 0) {
+                diaryItemsContainer.innerHTML = '<p>还没有保存过心情日记</p>';
+                return;
+            }
+            
+            // 生成日记列表HTML
+            let html = '';
+            diaries.forEach(diary => {
+                html += `
+                    <div class="diary-item">
+                        <div class="diary-content">${diary.content}</div>
+                        <div class="diary-date">${diary.date}</div>
+                    </div>
+                `;
+            });
+            
+            diaryItemsContainer.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
