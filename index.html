@@ -101,15 +101,18 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
         }
         .module-card h2 {
-            font-size: 24px;
+            font-size: 28px;
+            font-weight: 700;
             margin-bottom: 30px;
-            background: linear-gradient(90deg, #fff, #f8f9fa);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: white;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
         }
         .search-filter {
             display: flex;
@@ -128,6 +131,7 @@
             font-size: 16px;
             font-family: inherit;
             letter-spacing: 0.1rem;
+            transition: all 0.3s ease;
         }
         .search-filter input[type="date"] {
             padding: 15px 20px;
@@ -140,11 +144,12 @@
             font-size: 16px;
             font-family: inherit;
             letter-spacing: 0.1rem;
+            transition: all 0.3s ease;
         }
         .search-filter input:focus {
             outline: none;
-            border-color: rgba(255, 255, 255, 0.4);
-            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
         }
         .text-input {
             width: 100%;
@@ -160,11 +165,12 @@
             font-family: inherit;
             resize: vertical;
             margin-bottom: 20px;
+            transition: all 0.3s ease;
         }
         .text-input:focus {
             outline: none;
-            border-color: rgba(255, 255, 255, 0.4);
-            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
         }
         .text-input::placeholder {
             color: rgba(255, 255, 255, 0.6);
@@ -189,18 +195,39 @@
             color: rgba(255, 255, 255, 0.9);
             font-size: 16px;
             font-family: inherit;
+            transition: all 0.3s ease;
         }
-        .form-group select {
-            width: 100%;
-            padding: 15px 20px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        .form-group input[type="number"]:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+        }
+        .category-selector {
+            margin-bottom: 20px;
+        }
+        .category-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .category-tag {
+            padding: 10px 20px;
             border-radius: 50px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 16px;
-            font-family: inherit;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            border: 2px solid transparent;
+        }
+        .category-tag:hover {
+            background: rgba(0, 0, 0, 0.4);
+            transform: translateY(-2px);
+        }
+        .category-tag.active {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
         }
         .btn {
             display: inline-block;
@@ -402,29 +429,31 @@
                 <input type="number" id="expenseAmount" placeholder="0.00" step="0.01">
             </div>
             <div class="form-group">
-                <label for="expenseCategory">消费类别</label>
-                <select id="expenseCategory">
-                    <option value="餐饮-早餐">餐饮-早餐</option>
-                    <option value="餐饮-午餐">餐饮-午餐</option>
-                    <option value="餐饮-晚餐">餐饮-晚餐</option>
-                    <option value="餐饮-零食">餐饮-零食</option>
-                    <option value="餐饮-饮料">餐饮-饮料</option>
-                    <option value="交通-公交">交通-公交</option>
-                    <option value="交通-地铁">交通-地铁</option>
-                    <option value="交通-打车">交通-打车</option>
-                    <option value="交通-加油">交通-加油</option>
-                    <option value="购物-衣物">购物-衣物</option>
-                    <option value="购物-日用品">购物-日用品</option>
-                    <option value="购物-电子产品">购物-电子产品</option>
-                    <option value="娱乐-电影">娱乐-电影</option>
-                    <option value="娱乐-游戏">娱乐-游戏</option>
-                    <option value="娱乐-旅游">娱乐-旅游</option>
-                    <option value="医疗-药品">医疗-药品</option>
-                    <option value="医疗-检查">医疗-检查</option>
-                    <option value="教育-书籍">教育-书籍</option>
-                    <option value="教育-课程">教育-课程</option>
-                    <option value="其他">其他</option>
-                </select>
+                <label>消费类别</label>
+                <div class="category-selector">
+                    <div class="category-tags">
+                        <div class="category-tag" data-category="餐饮-早餐">餐饮-早餐</div>
+                        <div class="category-tag" data-category="餐饮-午餐">餐饮-午餐</div>
+                        <div class="category-tag" data-category="餐饮-晚餐">餐饮-晚餐</div>
+                        <div class="category-tag" data-category="餐饮-零食">餐饮-零食</div>
+                        <div class="category-tag" data-category="餐饮-饮料">餐饮-饮料</div>
+                        <div class="category-tag" data-category="交通-公交">交通-公交</div>
+                        <div class="category-tag" data-category="交通-地铁">交通-地铁</div>
+                        <div class="category-tag" data-category="交通-打车">交通-打车</div>
+                        <div class="category-tag" data-category="交通-加油">交通-加油</div>
+                        <div class="category-tag" data-category="购物-衣物">购物-衣物</div>
+                        <div class="category-tag" data-category="购物-日用品">购物-日用品</div>
+                        <div class="category-tag" data-category="购物-电子产品">购物-电子产品</div>
+                        <div class="category-tag" data-category="娱乐-电影">娱乐-电影</div>
+                        <div class="category-tag" data-category="娱乐-游戏">娱乐-游戏</div>
+                        <div class="category-tag" data-category="娱乐-旅游">娱乐-旅游</div>
+                        <div class="category-tag" data-category="医疗-药品">医疗-药品</div>
+                        <div class="category-tag" data-category="医疗-检查">医疗-检查</div>
+                        <div class="category-tag" data-category="教育-书籍">教育-书籍</div>
+                        <div class="category-tag" data-category="教育-课程">教育-课程</div>
+                        <div class="category-tag" data-category="其他">其他</div>
+                    </div>
+                </div>
             </div>
             <div class="form-group">
                 <label for="expenseNote">用途备注</label>
@@ -466,7 +495,21 @@
             loadExpenses();
             loadPeriods();
             updateMood(5);
+            initCategorySelector();
         });
+
+        // 初始化分类选择器
+        function initCategorySelector() {
+            const categoryTags = document.querySelectorAll('.category-tag');
+            categoryTags.forEach(tag => {
+                tag.addEventListener('click', function() {
+                    // 移除所有标签的活动状态
+                    categoryTags.forEach(t => t.classList.remove('active'));
+                    // 添加当前标签的活动状态
+                    this.classList.add('active');
+                });
+            });
+        }
 
         // 心情氛围
         function updateMood(score) {
@@ -564,13 +607,20 @@
         // 记账模块
         function saveExpense() {
             const amount = document.getElementById('expenseAmount').value;
-            const category = document.getElementById('expenseCategory').value;
+            const selectedTag = document.querySelector('.category-tag.active');
             const note = document.getElementById('expenseNote').value;
             
             if (!amount || parseFloat(amount) <= 0) {
                 alert('请输入有效的消费金额！');
                 return;
             }
+            
+            if (!selectedTag) {
+                alert('请选择消费类别！');
+                return;
+            }
+            
+            const category = selectedTag.dataset.category;
             
             const expense = {
                 id: Date.now(),
@@ -586,6 +636,7 @@
             
             document.getElementById('expenseAmount').value = '';
             document.getElementById('expenseNote').value = '';
+            selectedTag.classList.remove('active');
             loadExpenses();
             alert('记账成功！');
         }
