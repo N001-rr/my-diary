@@ -247,10 +247,11 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
         .category-tag.active {
-            background: #1976D2;
-            color: white;
-            border-color: #1565C0;
-            box-shadow: 0 0 20px rgba(25, 118, 210, 0.6);
+            background: #000 !important;
+            color: #fff !important;
+            transform: scale(1.1);
+            border-color: #333 !important;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
             font-size: 16px;
             font-weight: 600;
         }
@@ -765,6 +766,10 @@
     </div>
 
     <script>
+        // 强制数据模型（写在 script 顶层）
+        let currentExpenseCategory = '';
+        let currentIncomeCategory = '';
+
         // 初始化
         document.addEventListener('DOMContentLoaded', function() {
             loadDiaries();
@@ -776,22 +781,18 @@
             updateFinanceSummary();
         });
 
-        // 全局变量用于记录当前选中的分类
-        let selectedExpenseCategory = null;
-        let selectedIncomeCategory = null;
-
         // 初始化分类选择器
         function initCategorySelector() {
             const categoryTags = document.querySelectorAll('.category-tags:not(.income-category-tags) .category-tag');
             categoryTags.forEach(tag => {
+                // 为所有支出分类按钮绑定点击事件
                 tag.addEventListener('click', function() {
-                    // 移除同组标签的活动状态
-                    const parent = this.closest('.category-tags');
-                    parent.querySelectorAll('.category-tag').forEach(t => t.classList.remove('active'));
-                    // 添加当前标签的活动状态
+                    // 移除所有支出按钮的 active 类
+                    categoryTags.forEach(t => t.classList.remove('active'));
+                    // 给当前按钮添加 active 类
                     this.classList.add('active');
-                    // 记录当前选中的分类
-                    selectedExpenseCategory = this.dataset.category;
+                    // 将分类名存入 currentExpenseCategory
+                    currentExpenseCategory = this.dataset.category;
                 });
             });
         }
@@ -800,14 +801,14 @@
         function initIncomeCategorySelector() {
             const incomeCategoryTags = document.querySelectorAll('.income-category-tags .category-tag');
             incomeCategoryTags.forEach(tag => {
+                // 为所有收入分类按钮绑定点击事件
                 tag.addEventListener('click', function() {
-                    // 移除同组标签的活动状态
-                    const parent = this.closest('.income-category-tags');
-                    parent.querySelectorAll('.category-tag').forEach(t => t.classList.remove('active'));
-                    // 添加当前标签的活动状态
+                    // 移除所有收入按钮的 active 类
+                    incomeCategoryTags.forEach(t => t.classList.remove('active'));
+                    // 给当前按钮添加 active 类
                     this.classList.add('active');
-                    // 记录当前选中的分类
-                    selectedIncomeCategory = this.dataset.category;
+                    // 将分类名存入 currentIncomeCategory
+                    currentIncomeCategory = this.dataset.category;
                 });
             });
         }
@@ -968,12 +969,13 @@
                 return;
             }
             
-            if (!selectedTag) {
+            // 保存支出时：如果 currentExpenseCategory 为空，弹窗报错
+            if (!currentExpenseCategory) {
                 alert('请选择一个类别哦！');
                 return;
             }
             
-            const category = selectedTag.dataset.category;
+            const category = currentExpenseCategory;
             const icon = selectedTag.dataset.icon;
             
             const expense = {
@@ -993,9 +995,11 @@
             // 清空输入框和选中状态
             document.getElementById('expenseAmount').value = '';
             document.getElementById('expenseNote').value = '';
-            selectedTag.classList.remove('active');
+            if (selectedTag) {
+                selectedTag.classList.remove('active');
+            }
             // 重置选中的分类变量
-            selectedExpenseCategory = null;
+            currentExpenseCategory = '';
             
             // 重新加载数据并更新统计
             loadFinances();
@@ -1015,12 +1019,13 @@
                 return;
             }
             
-            if (!selectedTag) {
+            // 保存收入时：如果 currentIncomeCategory 为空，弹窗报错
+            if (!currentIncomeCategory) {
                 alert('请选择一个类别哦！');
                 return;
             }
             
-            const category = selectedTag.dataset.category;
+            const category = currentIncomeCategory;
             const icon = selectedTag.dataset.icon;
             
             const income = {
@@ -1040,9 +1045,11 @@
             // 清空输入框和选中状态
             document.getElementById('incomeAmount').value = '';
             document.getElementById('incomeNote').value = '';
-            selectedTag.classList.remove('active');
+            if (selectedTag) {
+                selectedTag.classList.remove('active');
+            }
             // 重置选中的分类变量
-            selectedIncomeCategory = null;
+            currentIncomeCategory = '';
             
             // 重新加载数据并更新统计
             loadFinances();
