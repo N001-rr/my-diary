@@ -53,10 +53,14 @@
             background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iLjc1IiBzdGl0Y2hUaWxlcz0ic3RpdGNoIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=');
             pointer-events: none;
         }
-        h1 {
-            text-align: center;
-            font-size: 32px;
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 30px;
+        }
+        h1 {
+            font-size: 32px;
             font-weight: 700;
             background: linear-gradient(90deg, #fff, #f8f9fa);
             -webkit-background-clip: text;
@@ -64,11 +68,146 @@
             background-clip: text;
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
+        .settings-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .settings-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+        .settings-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            padding: 25px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        .settings-panel h3 {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        .setting-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .setting-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-right: 10px;
+            accent-color: rgba(255, 255, 255, 0.8);
+        }
+        .setting-item label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 16px;
+            cursor: pointer;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-10px); }
+        }
+        .expense-container,
+        .period-container {
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .expense-container label,
+        .period-container label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 16px;
+        }
+        .expense-container input[type="number"] {
+            padding: 10px 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            font-family: inherit;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.2);
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
         .search-container {
             margin-bottom: 30px;
         }
-        .search-container input {
-            width: 100%;
+        .search-container {
+            display: flex;
+            gap: 15px;
+        }
+        .search-container input[type="text"] {
+            flex: 1;
+            padding: 15px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            font-family: inherit;
+            letter-spacing: 0.1rem;
+            transition: all 0.3s ease;
+        }
+        .search-container input[type="date"] {
             padding: 15px 20px;
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 50px;
@@ -242,6 +381,16 @@
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            display: flex;
+            gap: 20px;
+        }
+        .mood-indicator {
+            width: 12px;
+            border-radius: 6px;
+            flex-shrink: 0;
+        }
+        .diary-content-wrapper {
+            flex: 1;
         }
         .diary-item:hover {
             transform: translateY(-5px);
@@ -301,18 +450,51 @@
             line-height: 1.6;
             color: rgba(255, 255, 255, 0.8);
         }
+        .diary-item .diary-expense,
+        .diary-item .diary-period {
+            font-size: 14px;
+            margin-top: 10px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        .diary-item .diary-expense {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+        }
+        .diary-item .diary-period {
+            background: rgba(255, 100, 100, 0.3);
+            color: rgba(255, 255, 255, 0.9);
+        }
         .diary-item .diary-date {
             font-size: 12px;
             color: rgba(255, 255, 255, 0.6);
             text-align: right;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>心情日记</h1>
+        <div class="header">
+            <h1>心情日记</h1>
+            <button class="settings-btn" onclick="toggleSettings()">⚙️</button>
+        </div>
+        <div class="settings-panel" id="settingsPanel">
+            <h3>功能设置</h3>
+            <div class="setting-item">
+                <input type="checkbox" id="expenseMode" onchange="toggleExpenseMode()">
+                <label for="expenseMode">开启记账模式</label>
+            </div>
+            <div class="setting-item">
+                <input type="checkbox" id="periodMode" onchange="togglePeriodMode()">
+                <label for="periodMode">开启经期记录</label>
+            </div>
+        </div>
         <div class="search-container">
             <input type="text" id="searchInput" placeholder="搜索日记..." oninput="searchDiaries()">
+            <input type="date" id="datePicker" onchange="searchDiaries()">
         </div>
         <div class="mood-score">
             <label for="moodRange">心情打分：</label>
@@ -334,7 +516,109 @@
             displayDiaryList();
             // 初始化背景色
             updateMoodScore(5);
+            // 初始化功能模式
+            loadSettings();
         });
+
+        function toggleSettings() {
+            const settingsPanel = document.getElementById('settingsPanel');
+            if (settingsPanel.style.display === 'block') {
+                settingsPanel.style.display = 'none';
+            } else {
+                settingsPanel.style.display = 'block';
+            }
+        }
+
+        function toggleExpenseMode() {
+            const expenseMode = document.getElementById('expenseMode').checked;
+            const expenseInput = document.getElementById('expenseInput');
+            
+            if (expenseMode) {
+                if (!expenseInput) {
+                    const textarea = document.querySelector('.mood-input');
+                    const expenseContainer = document.createElement('div');
+                    expenseContainer.className = 'expense-container';
+                    expenseContainer.innerHTML = `
+                        <label for="expenseInput">今日支出：</label>
+                        <input type="number" id="expenseInput" placeholder="0.00" step="0.01">
+                    `;
+                    textarea.parentNode.insertBefore(expenseContainer, textarea.nextSibling);
+                    // 添加淡入动画
+                    expenseContainer.style.opacity = '0';
+                    expenseContainer.style.animation = 'fadeIn 0.3s ease forwards';
+                } else {
+                    expenseInput.parentNode.style.display = 'block';
+                    expenseInput.parentNode.style.animation = 'fadeIn 0.3s ease';
+                }
+            } else {
+                const expenseContainer = document.querySelector('.expense-container');
+                if (expenseContainer) {
+                    expenseContainer.style.animation = 'fadeOut 0.3s ease forwards';
+                    setTimeout(() => {
+                        expenseContainer.remove();
+                    }, 300);
+                }
+            }
+            saveSettings();
+        }
+
+        function togglePeriodMode() {
+            const periodMode = document.getElementById('periodMode').checked;
+            const periodToggle = document.getElementById('periodToggle');
+            
+            if (periodMode) {
+                if (!periodToggle) {
+                    const textarea = document.querySelector('.mood-input');
+                    const periodContainer = document.createElement('div');
+                    periodContainer.className = 'period-container';
+                    periodContainer.innerHTML = `
+                        <label for="periodToggle">今日生理期：</label>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="periodToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    `;
+                    textarea.parentNode.insertBefore(periodContainer, textarea.nextSibling);
+                    // 添加淡入动画
+                    periodContainer.style.opacity = '0';
+                    periodContainer.style.animation = 'fadeIn 0.3s ease forwards';
+                } else {
+                    periodToggle.parentNode.parentNode.style.display = 'block';
+                    periodToggle.parentNode.parentNode.style.animation = 'fadeIn 0.3s ease';
+                }
+            } else {
+                const periodContainer = document.querySelector('.period-container');
+                if (periodContainer) {
+                    periodContainer.style.animation = 'fadeOut 0.3s ease forwards';
+                    setTimeout(() => {
+                        periodContainer.remove();
+                    }, 300);
+                }
+            }
+            saveSettings();
+        }
+
+        function saveSettings() {
+            const settings = {
+                expenseMode: document.getElementById('expenseMode').checked,
+                periodMode: document.getElementById('periodMode').checked
+            };
+            localStorage.setItem('moodDiarySettings', JSON.stringify(settings));
+        }
+
+        function loadSettings() {
+            const settings = JSON.parse(localStorage.getItem('moodDiarySettings') || '{}');
+            
+            if (settings.expenseMode) {
+                document.getElementById('expenseMode').checked = true;
+                toggleExpenseMode();
+            }
+            
+            if (settings.periodMode) {
+                document.getElementById('periodMode').checked = true;
+                togglePeriodMode();
+            }
+        }
 
         function updateMoodScore(score) {
             // 更新分数显示
@@ -347,9 +631,12 @@
                 scoreValue.classList.remove('animate');
             }, 500);
             
-            // 将分数映射到HSL颜色的色调（0-360度）
-            // 1-10的分数映射到0-360的色调
-            const hue = (score - 1) / 9 * 360;
+            // 将分数映射到HSL颜色的色调
+            // 心情1（1）- 深沉冷色调（灰蓝色，hue=210）
+            // 心情10（10）- 明亮暖色调（金橙色，hue=45）
+            const startHue = 210; // 冷色调
+            const endHue = 45;   // 暖色调
+            const hue = startHue - (score - 1) / 9 * (startHue - endHue);
             
             // 设置背景色为HSL颜色
             document.body.style.background = `hsl(${hue}, 70%, 60%)`;
@@ -373,6 +660,18 @@
                 date: new Date().toLocaleString('zh-CN')
             };
             
+            // 保存支出信息
+            const expenseInput = document.getElementById('expenseInput');
+            if (expenseInput) {
+                diary.expense = expenseInput.value;
+            }
+            
+            // 保存经期信息
+            const periodToggle = document.getElementById('periodToggle');
+            if (periodToggle) {
+                diary.period = periodToggle.checked;
+            }
+            
             // 从localStorage获取现有日记
             let diaries = JSON.parse(localStorage.getItem('moodDiaries') || '[]');
             
@@ -390,6 +689,17 @@
             // 重置分数为5
             document.getElementById('moodRange').value = 5;
             updateMoodScore(5);
+            
+            // 重置支出和经期信息
+            const expenseInputReset = document.getElementById('expenseInput');
+            if (expenseInputReset) {
+                expenseInputReset.value = '';
+            }
+            
+            const periodToggleReset = document.getElementById('periodToggle');
+            if (periodToggleReset) {
+                periodToggleReset.checked = false;
+            }
             
             // 更新日记列表显示
             searchDiaries();
@@ -422,15 +732,29 @@
 
         function searchDiaries() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const selectedDate = document.getElementById('datePicker').value;
             const diaryItemsContainer = document.getElementById('diaryItems');
             
             // 从localStorage获取日记
             let diaries = JSON.parse(localStorage.getItem('moodDiaries') || '[]');
             
             // 过滤日记
-            const filteredDiaries = diaries.filter(diary => 
-                diary.content.toLowerCase().includes(searchTerm)
-            );
+            const filteredDiaries = diaries.filter(diary => {
+                // 关键词过滤
+                const matchesSearch = diary.content.toLowerCase().includes(searchTerm);
+                
+                // 日期过滤
+                let matchesDate = true;
+                if (selectedDate) {
+                    const diaryDate = new Date(diary.date);
+                    const filterDate = new Date(selectedDate);
+                    matchesDate = diaryDate.getFullYear() === filterDate.getFullYear() &&
+                                 diaryDate.getMonth() === filterDate.getMonth() &&
+                                 diaryDate.getDate() === filterDate.getDate();
+                }
+                
+                return matchesSearch && matchesDate;
+            });
             
             if (filteredDiaries.length === 0) {
                 diaryItemsContainer.innerHTML = '<p style="color: rgba(255, 255, 255, 0.6); text-align: center;">没有找到匹配的日记</p>';
@@ -440,14 +764,36 @@
             // 生成日记列表HTML
             let html = '';
             filteredDiaries.forEach((diary, index) => {
-                html += `
+                // 计算心情颜色
+                const startHue = 210; // 冷色调
+                const endHue = 45;   // 暖色调
+                const hue = startHue - (diary.score - 1) / 9 * (startHue - endHue);
+                const moodColor = `hsl(${hue}, 70%, 60%)`;
+                
+                // 构建日记内容HTML
+                let diaryHTML = `
                     <div class="diary-item" data-index="${index}">
-                        <button class="delete-btn" onclick="deleteDiary(${index})">×</button>
-                        <div class="diary-score">心情分数：${diary.score}/10</div>
-                        <div class="diary-content">${diary.content}</div>
-                        <div class="diary-date">${formatTime(diary.date)}</div>
-                    </div>
-                `;
+                        <div class="mood-indicator" style="background-color: ${moodColor};"></div>
+                        <div class="diary-content-wrapper">
+                            <button class="delete-btn" onclick="deleteDiary(${index})">×</button>
+                            <div class="diary-score">心情分数：${diary.score}/10</div>
+                            <div class="diary-content">${diary.content}</div>`;
+                
+                // 添加支出信息
+                if (diary.expense) {
+                    diaryHTML += `<div class="diary-expense">今日支出：¥${diary.expense}</div>`;
+                }
+                
+                // 添加经期信息
+                if (diary.period) {
+                    diaryHTML += `<div class="diary-period">今日生理期</div>`;
+                }
+                
+                diaryHTML += `<div class="diary-date">${formatTime(diary.date)}</div>
+                        </div>
+                    </div>`;
+                
+                html += diaryHTML;
             });
             
             diaryItemsContainer.innerHTML = html;
@@ -490,14 +836,36 @@
             // 生成日记列表HTML
             let html = '';
             diaries.forEach((diary, index) => {
-                html += `
+                // 计算心情颜色
+                const startHue = 210; // 冷色调
+                const endHue = 45;   // 暖色调
+                const hue = startHue - (diary.score - 1) / 9 * (startHue - endHue);
+                const moodColor = `hsl(${hue}, 70%, 60%)`;
+                
+                // 构建日记内容HTML
+                let diaryHTML = `
                     <div class="diary-item" data-index="${index}">
-                        <button class="delete-btn" onclick="deleteDiary(${index})">×</button>
-                        <div class="diary-score">心情分数：${diary.score}/10</div>
-                        <div class="diary-content">${diary.content}</div>
-                        <div class="diary-date">${formatTime(diary.date)}</div>
-                    </div>
-                `;
+                        <div class="mood-indicator" style="background-color: ${moodColor};"></div>
+                        <div class="diary-content-wrapper">
+                            <button class="delete-btn" onclick="deleteDiary(${index})">×</button>
+                            <div class="diary-score">心情分数：${diary.score}/10</div>
+                            <div class="diary-content">${diary.content}</div>`;
+                
+                // 添加支出信息
+                if (diary.expense) {
+                    diaryHTML += `<div class="diary-expense">今日支出：¥${diary.expense}</div>`;
+                }
+                
+                // 添加经期信息
+                if (diary.period) {
+                    diaryHTML += `<div class="diary-period">今日生理期</div>`;
+                }
+                
+                diaryHTML += `<div class="diary-date">${formatTime(diary.date)}</div>
+                        </div>
+                    </div>`;
+                
+                html += diaryHTML;
             });
             
             diaryItemsContainer.innerHTML = html;
